@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        Title</title>
+    <script type="text/javascript"
+            src="../js/vue.js"></script>
+    <script type="text/javascript"
+            src="../js/jquery-3.4.1.js"></script>
+    <style>
+        td {
+            border: 1px solid gray;
+            text-align: center;
+            font-size: 80%;
+            padding: 2px 3px;
+        }
+
+    </style>
+</head>
+<body>
+<div id="demo">
+    <input @keyup="getSuggestWords()"
+           type="text"
+           v-model="keyWords"
+           list="suggest-words">
+    <button @click="search">
+        search
+    </button>
+    <input type="text"
+           v-model="coursename">
+    <datalist
+            id="suggest-words">
+        <option v-for="item in suggestWords"
+                :value="item"></option>
+    </datalist>
+    <p v-if="showResult">一共找到<strong>{{numFound}}</strong>条记录</p>
+    <div v-for="item in results" @click="getbook(item.bookaddr)"
+         style="width: 600px;height: 300px;overflow-y: scroll;word-break: break-all">
+        <hr style="border: none;height: 2px;background: red">
+        <p>
+            <span v-html="item.chapterdetailtitle"></span>
+        </p>
+        <p>
+            {{item.courseshort}}><span
+                v-html="item.bookname"></span>><span
+                v-html="item.chaptertitle"></span>
+        </p>
+        <hr>
+        <p v-html="item.chapterdetailcontent"></p>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    var demo = new Vue({
+        el: '#demo',
+        data: {
+            showResult:false,
+            keyWords: '',
+            coursename: '',
+            suggestWords: [],
+            results: []
+        },
+        methods: {
+            getbook:function(bookaddr){
+                var words = this.keyWords.split(' ');
+                // localStorage.setItem('bookId',bookId);
+                window.location.href=bookaddr+'?keyWords='+words;
+                // window.location.href='/book/toBook/book1_1';
+            },
+            getSuggestWords: function () {
+                var url = "/book/getSuggest";
+                var words = this.keyWords.split(' ');
+                var keyWord = words[words.length - 1];
+                var param = {
+                    keyWord: keyWord
+                }
+                console.log("关键字："+keyWord)
+                $.ajax({
+                    url: url,
+                    data: param,
+                    dataType: "json",
+                    type: "get",
+                    success: function (result) {
+                        console.log(result);
+                        if (result.data!=null){
+                            demo.suggestWords=[];
+                            for (var i =0;i<result.data.length;i++){
+                                var oldWord=demo.keyWords.substr(0,demo.keyWords.lastIndexOf(' '));
+                                var newWord=oldWord+' '+result.data[i];
+                                demo.suggestWords.push(newWord)
+                            }
+                        }
+                    }
+                })
+
+            },
+            search: function () {
+                demo.results = [];
+                var url = "/book/searchKeyWords";
+                var param = {
+                    keyWords: demo.keyWords,
+                    course: demo.coursename,
+                    pageSize:10,
+                    currentPage:1
+                }
+                localStorage.setItem('searchKeyWords',demo.keyWords)
+                $.ajax({
+                    url: url,
+                    data: param,
+                    dataType: "json",
+                    type: "get",
+                    success: function (result) {
+                        demo.numFound=result.data.numFound;
+                        demo.showResult=true;
+                        for (var dataKey in result.data.results) {
+                            demo.results.push(result.data.results[dataKey]);
+                        }
+                        console.log(result);
+                    }
+                })
+            }
+        },
+        mounted: function () {
+
+        }
+    })
+</script>

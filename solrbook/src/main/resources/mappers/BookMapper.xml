@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wutong.mapper.BookMapper">
+
+    <resultMap
+            id="book"
+            type="com.wutong.common.entity.BookEntity">
+        <result column="course_name"
+                jdbcType="VARCHAR"
+                property="courseName"></result>
+        <result column="course_short"
+                jdbcType="VARCHAR"
+                property="courseShort"></result>
+        <result column="book_id"
+                jdbcType="INTEGER"
+                property="bookId"></result>
+        <result column="course_id"
+                jdbcType="INTEGER"
+                property="courseId"></result>
+        <result column="book_name"
+                jdbcType="VARCHAR"
+                property="bookName"></result>
+        <result column="book_addr"
+                jdbcType="VARCHAR"
+                property="bookAddr"></result>
+        <collection
+                property="chapters"
+                ofType="com.wutong.common.entity.ChapterEntity">
+            <result column="chapter_id"
+                    property="chapterId"
+                    jdbcType="INTEGER"></result>
+            <result column="book_id"
+                    property="bookId"
+                    jdbcType="INTEGER"></result>
+            <result column="chapter_title"
+                    property="chapterTitle"
+                    jdbcType="VARCHAR"></result>
+            <result column="chapter_content"
+                    property="chapterContent"
+                    jdbcType="VARCHAR"></result>
+            <collection
+                    property="chapterDetails"
+                    ofType="com.wutong.common.entity.ChapterDetailEntity">
+                <result column="chapter_detail_id"
+                        property="chapterDetailId"
+                        jdbcType="INTEGER"></result>
+                <result column="chapter_id"
+                        property="chapterId"
+                        jdbcType="INTEGER"></result>
+                <result column="chapter_detail_title"
+                        property="chapterDetailTitle"
+                        javaType="string"></result>
+                <result column="chapter_detail_content"
+                        property="chapterDetailContent"
+                        javaType="string"></result>
+                <result column="chapter_detail_addr"
+                        property="chapterDetailAddr"
+                        javaType="string"></result>
+            </collection>
+
+        </collection>
+    </resultMap>
+
+    <resultMap
+            id="course"
+            type="com.wutong.common.entity.CourseEntity">
+        <result column="course_name"
+                jdbcType="VARCHAR"
+                property="courseName"></result>
+        <result column="course_short"
+                jdbcType="VARCHAR"
+                property="courseShort"></result>
+        <result column="course_id"
+                jdbcType="INTEGER"
+                property="courseId"></result>
+        <collection
+                property="books"
+                resultMap="book">
+        </collection>
+    </resultMap>
+
+    <select id="getBook"
+            parameterType="java.lang.String"
+            resultMap="book">
+        select c.course_name,
+               c.course_short,
+               c.course_id,
+               b.book_id,
+               b.book_name,
+               b.book_addr,
+               c2.chapter_id,
+               c2.chapter_title,
+               c2.chapter_content,
+               cd.chapter_detail_id,
+               cd.chapter_detail_title,
+               cd.chapter_detail_content,
+               cd.chapter_detail_addr
+        from course c
+                 left join book b
+                           on c.course_id =
+                              b.course_id
+                 left join chapter c2
+                           on b.book_id =
+                              c2.book_id
+                 left join chapter_detail cd
+                           on c2.chapter_id =
+                              cd.chapter_id
+        where b.book_id =
+              #{bookId}
+        order by c2.chapter_id
+
+    </select>
+
+    <select id="getContent"
+            resultMap="course">
+    select c.course_name,
+    c.course_short,
+    c.course_id,
+    b.book_id,
+    b.book_name,
+    b.book_addr,
+    c2.chapter_id,
+    c2.chapter_title,
+    cd.chapter_detail_id,
+    cd.chapter_detail_title
+from course c
+    left join book b
+on c.course_id =
+    b.course_id
+    left join chapter c2
+    on b.book_id =
+    c2.book_id
+    left join chapter_detail cd
+    on c2.chapter_id =
+    cd.chapter_id
+order by c.course_id,b.book_id,c2.chapter_id,cd.chapter_detail_id
+    </select>
+
+    <select id="getCourses" resultType="com.wutong.common.entity.CourseEntity">
+        select * from course c order by course_id
+    </select>
+    <select id="getBooksByCourseId" resultType="com.wutong.common.entity.BookEntity">
+        select *
+        from course c left join book b on c.course_id=b.course_id where b.course_id=#{courseId} order by b.book_id;
+    </select>
+    <select id="getChaptersByBookId" resultType="com.wutong.common.entity.ChapterEntity">
+        select * from chapter c where book_id=#{bookId} order by chapter_id
+    </select>
+</mapper>

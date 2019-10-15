@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        book-detail</title>
+    <script type="text/javascript"
+            src="../js/vue.js"></script>
+    <script type="text/javascript"
+            src="../js/jquery-3.4.1.js"></script>
+    <style>
+        td {
+            border: 1px solid gray;
+            text-align: center;
+            font-size: 80%;
+            padding: 2px 3px;
+        }
+
+    </style>
+</head>
+<body>
+<div id="book">
+<p>{{book.courseShort}}>{{book.bookName}}</p>
+    <div v-for="item in chapterdetails">
+        <div>{{item.chapterTitle}}</div>
+        <div v-for="detail in item.chapterDetails">
+            <p>{{detail.chapterDetailTitle}}</p>
+            <p v-html="detail.chapterDetailContent"></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    var book=new Vue({
+        el:'#book',
+        data:{
+            book:{},
+            bookId:'',
+            chapterdetails:[]
+        },
+        methods:{
+          getBook:function () {
+              var url="/book/getBook";
+              var param={
+                  bookId:localStorage.getItem('bookId')
+              }
+              $.ajax({
+                  url:url,
+                  data:param,
+                  type:'get',
+                  dataType:'json',
+                  success:function (result) {
+                      book.book=result[0];
+                      console.log(result)
+                      for (var i=0;i<result[0].chapters.length;i++){
+                          book.chapterdetails.push(result[0].chapters[i])
+                      }
+                  }
+              })
+          }
+        },
+        mounted:function () {
+            this.bookId=localStorage.getItem('bookId');
+            this.getBook();
+        }
+    })
+</script>
