@@ -112,7 +112,7 @@ public class BookServiceImpl implements BookService {
         query.set("sort","chapterdetailtitle asc");
 
         query.set("df", "chapterdetailcontent");
-        query.set("fl", "bookaddr,chapterdetailaddr,coursename,chaptertitle,bookid,chpterid,bookname,courseshort,chapterdetailtitle,chapterdetailcontent,chapterdetailid,id");
+        query.set("fl", "bookaddr,chapterdetailaddr,coursename,chaptertitle,bookid,chpterid,bookname,courseshort,chapterdetailtitle,chapterdetailcontent,chapterdetailid,id,chapterdetailhtmlid");
 
 //        设置高亮
         query.setHighlight(true);

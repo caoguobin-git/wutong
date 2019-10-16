@@ -46,6 +46,14 @@ public class BookController {
         return result;
     }
 
+    @RequestMapping(value = "/getBookByBookId")
+    @ResponseBody
+    public Object getBookByBokId(Integer bookId) {
+        Map<String,String> map=new HashMap<>();
+        map.put("coursename","111");
+        return map;
+    }
+
     @RequestMapping(value = "toBookDetailPage")
     public String toBookDetailPage() {
         return "book-detail";
