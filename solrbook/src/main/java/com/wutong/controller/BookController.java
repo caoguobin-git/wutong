@@ -9,10 +9,7 @@ package com.wutong.controller;
 
 
 import com.google.common.base.Strings;
-import com.wutong.common.entity.BookEntity;
-import com.wutong.common.entity.ChapterEntity;
-import com.wutong.common.entity.CourseEntity;
-import com.wutong.common.entity.UserEntity;
+import com.wutong.common.entity.*;
 import com.wutong.common.vo.JsonResult;
 import com.wutong.service.BookService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,20 +35,39 @@ public class BookController {
 
     @RequestMapping(value = "/getBook")
     @ResponseBody
-    public Object getBook(Integer bookId) {
-        if (bookId==null||bookId==0){
-            bookId=1;
+    public List<BookEntity> getBook(Integer bookId) {
+        if (bookId == null || bookId == 0) {
+            bookId = 1;
         }
-        List<Map<String, String>> result = bookService.getBook(bookId);
+        List<BookEntity> result = bookService.getBook(bookId);
         return result;
     }
 
     @RequestMapping(value = "/getBookByBookId")
     @ResponseBody
-    public Object getBookByBokId(Integer bookId) {
-        Map<String,String> map=new HashMap<>();
-        map.put("coursename","111");
-        return map;
+    public JsonResult getBookByBookId(Integer bookId) {
+        List<BookEntity> book = getBook(bookId);
+        if (book.size()==0){
+            return new JsonResult("404","未找到当前文档",null);
+        }
+        StringBuilder sb = new StringBuilder();
+        List<ChapterEntity> chapters = book.get(0).getChapters();
+        for (ChapterEntity chapter : chapters) {
+            sb.append(chapter.getChapterTitle());
+            List<ChapterDetailEntity> chapterDetails = chapter.getChapterDetails();
+            for (ChapterDetailEntity chapterDetail : chapterDetails) {
+                sb.append(chapterDetail.getChapterDetailTitle())
+                        .append(chapterDetail.getChapterDetailContent());
+            }
+        }
+        System.out.println(sb.toString());
+        Map<String,String> result = new HashMap<>();
+
+        result.put("courseName", book.get(0).getCourseName());
+        result.put("bookName", book.get(0).getBookName());
+        result.put("bookAddr", book.get(0).getBookAddr());
+        result.put("chapters", sb.toString());
+        return new JsonResult(result);
     }
 
     @RequestMapping(value = "toBookDetailPage")
@@ -74,26 +90,26 @@ public class BookController {
 
     @RequestMapping("/searchKeyWords")
     @ResponseBody
-    public JsonResult searchKeyWords(String usertoken,String keyWords, String course, Integer pageSize, Integer currentPage) {
+    public JsonResult searchKeyWords(String usertoken, String keyWords, String course, Integer pageSize, Integer currentPage) {
         log.info(keyWords);
         log.info(course);
-        if (!Strings.isNullOrEmpty(usertoken)){
+        if (!Strings.isNullOrEmpty(usertoken)) {
             UserEntity userEntity = UserController.loginUsers.get(usertoken);
-            if (userEntity!=null){
-                course=userEntity.getRole();
+            if (userEntity != null) {
+                course = userEntity.getRole();
             }
         }
 
-        if (pageSize == null || pageSize==0){
-            pageSize=10;
+        if (pageSize == null || pageSize == 0) {
+            pageSize = 10;
         }
-        if (currentPage==null || currentPage==0){
-            currentPage=1;
+        if (currentPage == null || currentPage == 0) {
+            currentPage = 1;
         }
         //设置搜索热词
-        String trim=null;
-        if (keyWords!=null){
-            trim=keyWords.trim();
+        String trim = null;
+        if (keyWords != null) {
+            trim = keyWords.trim();
         }
         if (trim != null && trim.length() > 0) {
             String[] s = trim.split(" ");
@@ -124,39 +140,39 @@ public class BookController {
 
     @RequestMapping(value = "/getContent")
     @ResponseBody
-    public JsonResult getContent(){
-        List<Map<String, String>> result=bookService.getContent();
+    public JsonResult getContent() {
+        List<Map<String, String>> result = bookService.getContent();
         return new JsonResult(result);
     }
 
     @RequestMapping(value = "/getCourses")
     @ResponseBody
-    public JsonResult getCourses(){
+    public JsonResult getCourses() {
         List<CourseEntity> result = bookService.getCourses();
         return new JsonResult(result);
     }
 
     @RequestMapping(value = "/getBooksByCourseId")
     @ResponseBody
-    public JsonResult getBooksByCourseId(Integer courseId){
-        if (courseId==null||courseId==0){
-            courseId=1;
+    public JsonResult getBooksByCourseId(Integer courseId) {
+        if (courseId == null || courseId == 0) {
+            courseId = 1;
         }
-        String courseName=null;
-        List<BookEntity> result=bookService.getBooksByCourseId(courseId);
-        if(result.size()>0){
+        String courseName = null;
+        List<BookEntity> result = bookService.getBooksByCourseId(courseId);
+        if (result.size() > 0) {
             courseName = result.get(0).getCourseName();
         }
-        return new JsonResult("200",courseName,result);
+        return new JsonResult("200", courseName, result);
     }
 
     @RequestMapping(value = "/getChaptersByBookId")
     @ResponseBody
-    public JsonResult getChaptersByBookId(Integer bookId){
-        if (bookId==null||bookId==0){
-            bookId=1;
+    public JsonResult getChaptersByBookId(Integer bookId) {
+        if (bookId == null || bookId == 0) {
+            bookId = 1;
         }
-        List<ChapterEntity> result=bookService.getChaptersByBookId(bookId);
+        List<ChapterEntity> result = bookService.getChaptersByBookId(bookId);
         return new JsonResult(result);
     }
 
