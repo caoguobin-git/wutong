@@ -38,7 +38,7 @@ public class UserController {
         log.info(password);
         UserEntity userEntity= userService.userLogin(username,password);
         if (userEntity==null){
-            return new JsonResult("403","failed","login failed");
+            return new JsonResult("403","failed","登录失败");
         }
         loginUsers.put(userEntity.getUserId(),userEntity);
         Map<String,String> result = new HashMap<>();

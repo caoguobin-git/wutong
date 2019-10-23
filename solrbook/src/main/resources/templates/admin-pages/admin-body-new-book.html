@@ -94,6 +94,10 @@
                 </select>
             </div>
             <div class="input-group">
+                <span class="input-group-addon">文档地址：</span>
+                <p class="form-control">{{books[currentBookIndex].bookAddr}}</p>
+            </div>
+            <div class="input-group">
                 <span class="input-group-addon">章节：</span>
                 <select @change="getChapterdetailsByChapterId()"
                         class="form-control"
