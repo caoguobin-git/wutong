@@ -10,4 +10,8 @@
         insert into user_info (user_id,username,password,salt,role)
         values (#{userId},#{username},#{password},#{salt},#{role});
     </insert>
+
+    <select id="getAllUsers" resultType="com.wutong.common.entity.UserEntity">
+        select * from user_info order by role
+    </select>
 </mapper>

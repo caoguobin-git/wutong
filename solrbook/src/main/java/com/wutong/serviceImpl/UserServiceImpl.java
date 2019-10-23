@@ -14,6 +14,8 @@ import com.wutong.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author duochuang
  */
@@ -56,6 +58,11 @@ public class UserServiceImpl implements UserService {
         }else {
             return null;
         }
+    }
+
+    @Override
+    public List<UserEntity> getAllUsers() {
+        return userMapper.getAllUsers();
     }
 
 

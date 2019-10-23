@@ -8,8 +8,12 @@ package com.wutong.service;
 
 import com.wutong.common.entity.UserEntity;
 
+import java.util.List;
+
 public interface UserService {
     String register(String username, String password, String role);
 
     UserEntity userLogin(String username, String password);
+
+    List<UserEntity> getAllUsers();
 }

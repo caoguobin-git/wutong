@@ -9,8 +9,10 @@ package com.wutong.serviceImpl;
 
 
 import com.wutong.common.entity.BookEntity;
+import com.wutong.common.entity.ChapterDetailEntity;
 import com.wutong.common.entity.ChapterEntity;
 import com.wutong.common.entity.CourseEntity;
+import com.wutong.common.util.FilePathUtil;
 import com.wutong.mapper.BookMapper;
 import com.wutong.service.BookService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +25,19 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
 public class BookServiceImpl implements BookService {
+
+
+    static final String ROOT_PATH = "e:/";
+    static final String CHILD_PATH = "yilanpic";
 
     @Autowired
     private BookMapper bookMapper;
@@ -45,7 +50,7 @@ public class BookServiceImpl implements BookService {
             .build();
 
     @Override
-    public List<Map<String, String>> getBook(int bookId) {
+    public List<BookEntity> getBook(int bookId) {
         return bookMapper.getBook(String.valueOf(bookId));
     }
 
@@ -69,6 +74,7 @@ public class BookServiceImpl implements BookService {
         }
         //获取拼写检查的结果集
         SpellCheckResponse re = rsp.getSpellCheckResponse();
+        wordList.add(keyWord);
         if (re != null) {
             List<SpellCheckResponse.Suggestion> suggestions = re.getSuggestions();
             for (SpellCheckResponse.Suggestion suggestion : suggestions) {
@@ -77,13 +83,13 @@ public class BookServiceImpl implements BookService {
                     System.out.println(s);
                     wordList.add(s);
                 }
-                return wordList;
+                System.out.println(wordList);
             }
             //获取第一个推荐词
             String t = re.getFirstSuggestion(keyWord);
             System.out.println("推荐词：" + t);
         }
-        return null;
+        return wordList;
     }
 
     @Override
@@ -98,20 +104,32 @@ public class BookServiceImpl implements BookService {
             s1 = s1.trim();
             if (s1 != null && !"".equalsIgnoreCase(s1)) {
                 queryStr.append("chapterdetailcontent:")
-                        .append(s1).append(" ")
-                        .append("chaptertitle:")
                         .append(s1).append(" ");
             }
         }
+        for (String s1 : s) {
+            s1 = s1.trim();
+            if (s1 != null && !"".equalsIgnoreCase(s1)) {
+                queryStr.append("chapterdetailtitle:")
+                        .append(s1).append(" ");
+            }
+        }
+//        for (String s1 : s) {
+//            s1 = s1.trim();
+//            if (s1 != null && !"".equalsIgnoreCase(s1)) {
+//                queryStr.append("chaptertitle:")
+//                        .append(s1).append(" ");
+//            }
+//        }
         if (!(course == null || "".equalsIgnoreCase(course.trim()))) {
             queryStr.append("coursename:").append(course);
         }
 
         System.out.println("查询条件：" + queryStr.toString());
         query.set("q", queryStr.toString());
-        query.set("sort","chapterdetailtitle asc");
+//        query.set("sort", "chapterdetailtitle asc");
 
-        query.set("df", "chapterdetailcontent");
+//        query.set("df", "chapterdetailcontent");
         query.set("fl", "bookaddr,chapterdetailaddr,coursename,chaptertitle,bookid,chpterid,bookname,courseshort,chapterdetailtitle,chapterdetailcontent,chapterdetailid,id,chapterdetailhtmlid");
 
 //        设置高亮
@@ -148,13 +166,13 @@ public class BookServiceImpl implements BookService {
 
 
         Map<String, Map<String, List<String>>> highlightingMap = response.getHighlighting();
-        highlightingMap.forEach((k, v) -> {
-            System.out.println(k);
-            v.forEach((a, b) -> {
-                System.out.println(a);
-                System.out.println(b.get(0));
-            });
-        });
+//        highlightingMap.forEach((k, v) -> {
+//            System.out.println(k);
+//            v.forEach((a, b) -> {
+//                System.out.println(a);
+//                System.out.println(b.get(0));
+//            });
+//        });
 
 
         String fieldName1 = "bookname";
@@ -170,31 +188,28 @@ public class BookServiceImpl implements BookService {
                         id1 = id1.replaceAll("<text class='highlight-detail'>" + course + "</text>", course);
                     }
                     result.setField(fieldName1, id1);
-//                    result.setField(fieldName1, highlightingMap.get(result.getFieldValue("id")).get(fieldName1).get(0));
 
 
                 }
                 if (highlightingMap.get(id).get(fieldName2) != null) {
-                    String id2=highlightingMap.get(result.getFieldValue("id")).get(fieldName2).get(0);
+                    String id2 = highlightingMap.get(result.getFieldValue("id")).get(fieldName2).get(0);
                     if (keywords.indexOf(course) == -1) {
                         id2 = id2.replaceAll("<text class='highlight-detail'>" + course + "</text>", course);
                     }
                     result.setField(fieldName2, id2);
-//                    result.setField(fieldName1, highlightingMap.get(result.getFieldValue("id")).get(fieldName1).get(0));
 
                 }
                 if (highlightingMap.get(id).get(fieldName3) != null) {
-                    String id3=highlightingMap.get(result.getFieldValue("id")).get(fieldName3).get(0);
+                    String id3 = highlightingMap.get(result.getFieldValue("id")).get(fieldName3).get(0);
                     if (keywords.indexOf(course) == -1) {
                         id3 = id3.replaceAll("<text class='highlight-detail'>" + course + "</text>", course);
                     }
                     result.setField(fieldName3, id3);
-//                    result.setField(fieldName2, highlightingMap.get(result.getFieldValue("id")).get(fieldName2).get(0));
                 }
             }
         }
 
-        System.out.println(results);
+//        System.out.println(results);
 
         Map<String, Object> pageResult = new HashMap<>();
         pageResult.put("numFound", numFound);
@@ -230,5 +245,58 @@ public class BookServiceImpl implements BookService {
     public List<ChapterEntity> getChaptersByBookId(Integer bookId) {
         List<ChapterEntity> result = bookMapper.getChaptersByBookId(bookId);
         return result;
+    }
+
+    @Override
+    public String savePic(MultipartFile pic) {
+        return uploadPic(pic);
+    }
+
+    @Override
+    public List<ChapterDetailEntity> getChapterdetailsByChapterId(Integer chapterId) {
+        List<ChapterDetailEntity> result = bookMapper.getChapterdetailsByChapterId(chapterId);
+        return result;
+    }
+
+    @Override
+    public String saveChapterByBookId(Integer bookId, String chapterTitle) {
+//        StringBuilder sb=new StringBuilder();
+//        StringBuilder append = sb.append("<h1>").append(chapterTitle).append("</h1>");
+        int result = bookMapper.saveChapterByBookId(bookId,chapterTitle);
+        if (result>0){
+            return "ok";
+        }else {
+            return "failed";
+        }
+    }
+
+    @Override
+    public String saveChapterDetailByChapterId(Integer chapterId, String chapterDetailTitle, String chapterDetailContent) {
+        String s = chapterDetailContent.replaceAll("\"", "\'");
+        StringBuilder sb=new StringBuilder();
+        sb.append("<div>").append(s).append("</div>");
+
+        int result = bookMapper.saveChapterDetailByChapterId(chapterId,chapterDetailTitle,sb.toString());
+        if (result>0){
+            return "ok";
+        }else {
+            return "failed";
+        }
+    }
+
+
+    private String uploadPic(MultipartFile multipartFile) {
+        String fileName = multipartFile.getOriginalFilename();
+        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String s = null;
+        try {
+            s = FilePathUtil.uploadFile(ROOT_PATH + CHILD_PATH, fileType);
+            File file = new File(ROOT_PATH + CHILD_PATH + s);
+            multipartFile.transferTo(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return CHILD_PATH + s;
+
     }
 }

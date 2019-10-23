@@ -31,8 +31,18 @@ public class IndexController {
         return "index";
     }
 
+    @RequestMapping(value = "/uploadBook")
+    public String uploadBook(){
+        return "upload-book";
+    }
+
     @RequestMapping(value = "/content")
     public String content(){
         return "contentPage";
+    }
+
+    @RequestMapping(value = "/adminIndex")
+    public String adminIndex(){
+        return "adminPage";
     }
 }

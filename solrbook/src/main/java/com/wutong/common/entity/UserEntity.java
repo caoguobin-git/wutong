@@ -7,12 +7,16 @@
 
 package com.wutong.common.entity;
 
+import java.sql.Timestamp;
+
 public class UserEntity {
     private String userId;
     private String username;
     private String password;
     private String salt;
     private String role;
+    private Timestamp createTime;
+    private Timestamp updateTime;
 
     public String getUserId() {
         return userId;
@@ -52,5 +56,21 @@ public class UserEntity {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
+    }
+
+    public Timestamp getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Timestamp updateTime) {
+        this.updateTime = updateTime;
     }
 }

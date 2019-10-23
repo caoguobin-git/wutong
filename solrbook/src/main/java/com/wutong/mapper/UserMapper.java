@@ -10,9 +10,13 @@ import com.wutong.common.entity.UserEntity;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserMapper {
     UserEntity findByUsername(String username);
 
     void register(@Param("userId") String userId, @Param("username") String username, @Param("password") String password, @Param("salt") String salt, @Param("role") String role);
+
+    List<UserEntity> getAllUsers();
 }

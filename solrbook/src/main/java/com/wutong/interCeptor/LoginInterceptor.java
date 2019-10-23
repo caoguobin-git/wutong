@@ -38,6 +38,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         map.put("data", null);
         map.put("message", "未登录或登录已过期");
         map.put("status", "403");
+        response.setStatus(403);
         String s = new ObjectMapper().writeValueAsString(map);
         out.println(s);
         out.flush();

@@ -10,20 +10,20 @@ package com.wutong.controller;
 import com.google.common.base.Strings;
 import com.wutong.common.entity.UserEntity;
 import com.wutong.common.vo.JsonResult;
+import com.wutong.mapper.UserMapper;
 import com.wutong.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -34,6 +34,8 @@ public class UserController {
     @RequestMapping(value = "/login")
     @ResponseBody
     public JsonResult userLogin(String username,String password){
+        log.info(username);
+        log.info(password);
         UserEntity userEntity= userService.userLogin(username,password);
         if (userEntity==null){
             return new JsonResult("403","failed","login failed");
@@ -70,5 +72,12 @@ public class UserController {
         } else {
             return new JsonResult("402", "注册失败", result);
         }
+    }
+
+    @RequestMapping(value = "/getAllUsers")
+    @ResponseBody
+    public JsonResult getAllUsers(){
+        List<UserEntity> users= userService.getAllUsers();
+        return new JsonResult(users);
     }
 }

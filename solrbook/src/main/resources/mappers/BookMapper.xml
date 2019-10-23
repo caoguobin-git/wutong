@@ -147,4 +147,15 @@ order by c.course_id,b.book_id,c2.chapter_id,cd.chapter_detail_id
     <select id="getChaptersByBookId" resultType="com.wutong.common.entity.ChapterEntity">
         select * from chapter c where book_id=#{bookId} order by chapter_id
     </select>
+
+    <select id="getChapterdetailsByChapterId" resultType="com.wutong.common.entity.ChapterDetailEntity">
+        select * from chapter_detail cd where chapter_id=#{chapterId} order by chapter_detail_id
+    </select>
+
+    <insert id="saveChapterByBookId">
+        insert into chapter (book_id, chapter_title) values (#{bookId},#{chapterTitle})
+    </insert>
+    <insert id="saveChapterDetailByChapterId">
+        insert into chapter_detail (chapter_id, chapter_detail_title, chapter_detail_content) values (#{chapterId},#{title},#{content})
+    </insert>
 </mapper>
