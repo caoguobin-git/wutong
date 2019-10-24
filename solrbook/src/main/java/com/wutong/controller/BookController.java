@@ -13,8 +13,7 @@ import com.wutong.common.entity.*;
 import com.wutong.common.vo.JsonResult;
 import com.wutong.service.BookService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,15 +56,16 @@ public class BookController {
         StringBuilder sb = new StringBuilder();
         List<ChapterEntity> chapters = book.get(0).getChapters();
         for (ChapterEntity chapter : chapters) {
+
             sb.append("<div class='chapter-title'>")
-                    .append(chapter.getChapterTitle())
+                    .append(StringEscapeUtils.unescapeJava(chapter.getChapterTitle()))
                     .append("</div>");
             List<ChapterDetailEntity> chapterDetails = chapter.getChapterDetails();
             for (ChapterDetailEntity chapterDetail : chapterDetails) {
                 sb.append("<div class='chapter-detail-title'>")
-                        .append(chapterDetail.getChapterDetailTitle())
+                        .append(StringEscapeUtils.unescapeJava(chapterDetail.getChapterDetailTitle()))
                         .append("</div>")
-                        .append(chapterDetail.getChapterDetailContent());
+                        .append(StringEscapeUtils.unescapeJava(chapterDetail.getChapterDetailContent()));
             }
         }
         System.out.println(sb.toString());
@@ -81,6 +81,7 @@ public class BookController {
 
         //去除转义
         chapterStr= StringEscapeUtils.unescapeJava(chapterStr);
+        chapterStr=chapterStr.replaceAll("\\n","");
         result.put("courseName", book.get(0).getCourseName());
         result.put("bookName", book.get(0).getBookName());
         result.put("bookAddr", book.get(0).getBookAddr());
