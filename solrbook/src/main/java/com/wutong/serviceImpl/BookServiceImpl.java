@@ -212,6 +212,21 @@ public class BookServiceImpl implements BookService {
 //        System.out.println(results);
 
         Map<String, Object> pageResult = new HashMap<>();
+        for (int i = 0; i < results.size(); i++) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<div class='searchListTitle'>")
+                    .append(results.get(i).getFieldValue("chapterdetailtitle"))
+                    .append("</div>")
+                    .append("<div class='searchListTitle2'>")
+                    .append(results.get(i).getFieldValue("courseshort"))
+                    .append(">")
+                    .append(results.get(i).getFieldValue("bookname"))
+                    .append(">")
+                    .append(results.get(i).getFieldValue("chaptertitle"))
+                    .append("</div>")
+                    .append(results.get(i).getFieldValue("chapterdetailcontent"));
+            results.get(i).setField("chapterdetailcontent",sb.toString());
+        }
         pageResult.put("numFound", numFound);
         pageResult.put("start", start);
         pageResult.put("pageSize", pageSize);
@@ -220,6 +235,7 @@ public class BookServiceImpl implements BookService {
         }
         pageResult.put("currentPage", currentPage);
         pageResult.put("results", results);
+
         return pageResult;
     }
 
@@ -262,10 +278,10 @@ public class BookServiceImpl implements BookService {
     public String saveChapterByBookId(Integer bookId, String chapterTitle) {
 //        StringBuilder sb=new StringBuilder();
 //        StringBuilder append = sb.append("<h1>").append(chapterTitle).append("</h1>");
-        int result = bookMapper.saveChapterByBookId(bookId,chapterTitle);
-        if (result>0){
+        int result = bookMapper.saveChapterByBookId(bookId, chapterTitle);
+        if (result > 0) {
             return "ok";
-        }else {
+        } else {
             return "failed";
         }
     }
@@ -273,13 +289,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public String saveChapterDetailByChapterId(Integer chapterId, String chapterDetailTitle, String chapterDetailContent) {
         String s = chapterDetailContent.replaceAll("\"", "\'");
-        StringBuilder sb=new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.append("<div>").append(s).append("</div>");
 
-        int result = bookMapper.saveChapterDetailByChapterId(chapterId,chapterDetailTitle,sb.toString());
-        if (result>0){
+        int result = bookMapper.saveChapterDetailByChapterId(chapterId, chapterDetailTitle, sb.toString());
+        if (result > 0) {
             return "ok";
-        }else {
+        } else {
             return "failed";
         }
     }
