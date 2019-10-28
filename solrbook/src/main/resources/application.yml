@@ -51,3 +51,6 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath:mappers/*.xml
+logging:
+  level:
+    com.wutong.mapper.BookMapper: debug

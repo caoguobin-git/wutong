@@ -137,7 +137,7 @@ public class BookServiceImpl implements BookService {
         query.addHighlightField("bookname");
         query.addHighlightField("chapterdetailtitle");
         query.addHighlightField("chapterdetailcontent");
-        query.setHighlightFragsize(100000);
+        query.setHighlightFragsize(100);
         query.setHighlightSimplePre("<text class='highlight-detail'>");
         query.setHighlightSimplePost("</text>");
 
@@ -214,17 +214,19 @@ public class BookServiceImpl implements BookService {
         Map<String, Object> pageResult = new HashMap<>();
         for (int i = 0; i < results.size(); i++) {
             StringBuilder sb = new StringBuilder();
-            sb.append("<div class='searchListTitle'>")
+            sb.append("<div class='content-container>")
+            .append("<div class='searchListTitle'>")
                     .append(results.get(i).getFieldValue("chapterdetailtitle"))
                     .append("</div>")
                     .append("<div class='searchListTitle2'>")
                     .append(results.get(i).getFieldValue("courseshort"))
-                    .append(">")
+                    .append("->")
                     .append(results.get(i).getFieldValue("bookname"))
-                    .append(">")
+                    .append("->")
                     .append(results.get(i).getFieldValue("chaptertitle"))
                     .append("</div>")
-                    .append(results.get(i).getFieldValue("chapterdetailcontent"));
+                    .append(results.get(i).getFieldValue("chapterdetailcontent"))
+            .append("</div>");
             results.get(i).setField("chapterdetailcontent",sb.toString());
         }
         pageResult.put("numFound", numFound);
