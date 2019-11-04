@@ -11,6 +11,7 @@ import com.wutong.common.entity.UserEntity;
 import com.wutong.common.util.MD5HashUtils;
 import com.wutong.mapper.UserMapper;
 import com.wutong.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.List;
  * @author duochuang
  */
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -49,6 +51,9 @@ public class UserServiceImpl implements UserService {
         if (user==null){
             return null;
         }
+        if (!user.isValid()){
+            return null;
+        }
         String salt = user.getSalt();
         String pssword= MD5HashUtils.getMD5HashWithSalt(password, salt);
         if (pssword.equals(user.getPassword())){
@@ -63,6 +68,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserEntity> getAllUsers() {
         return userMapper.getAllUsers();
+    }
+
+    @Override
+    public UserEntity findUserById(String usertoken) {
+        return userMapper.findUserById(usertoken);
+    }
+
+    @Override
+    public String updateUserById(String userid, boolean b) {
+        log.info(userid);
+        log.info(String.valueOf(b));
+        int result = userMapper.updateUserById(userid,b);
+        if (result>0){
+            return "ok";
+        }
+        return null;
     }
 
 

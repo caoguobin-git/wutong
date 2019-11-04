@@ -14,6 +14,7 @@ import com.wutong.common.entity.ChapterEntity;
 import com.wutong.common.entity.CourseEntity;
 import com.wutong.common.util.FilePathUtil;
 import com.wutong.mapper.BookMapper;
+import com.wutong.mapper.UserMapper;
 import com.wutong.service.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -36,11 +37,16 @@ import java.util.*;
 public class BookServiceImpl implements BookService {
 
 
-    static final String ROOT_PATH = "e:/";
-    static final String CHILD_PATH = "yilanpic";
+//    static final String ROOT_PATH = "e:/";
+    static final String ROOT_PATH = "/usr/local/books/";
+//    static final String CHILD_PATH = "wutongpics";
+    static final String CHILD_PATH = "pics";
 
     @Autowired
     private BookMapper bookMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     final static String solrUrl = "http://106.13.51.176:8983/solr/book";
 
@@ -100,20 +106,25 @@ public class BookServiceImpl implements BookService {
             queryStr.append("*:*").append(" ");
         }
         String[] s = keywords.split(" ");
-        for (String s1 : s) {
-            s1 = s1.trim();
-            if (s1 != null && !"".equalsIgnoreCase(s1)) {
-                queryStr.append("chapterdetailcontent:")
-                        .append(s1).append(" ");
-            }
-        }
-        for (String s1 : s) {
-            s1 = s1.trim();
-            if (s1 != null && !"".equalsIgnoreCase(s1)) {
-                queryStr.append("chapterdetailtitle:")
-                        .append(s1).append(" ");
-            }
-        }
+//        for (String s1 : s) {
+//            queryStr.append(s1).append(" AND ");
+//        }
+        queryStr.append(String.join(" AND ", s));
+//        for (String s1 : s) {
+//            s1 = s1.trim();
+//            if (s1 != null && !"".equalsIgnoreCase(s1)) {
+//                queryStr.append("chapterdetailcontent:")
+//                        .append(s1).append(" ");
+//            }
+//        }
+//        for (String s1 : s) {
+//            s1 = s1.trim();
+//            if (s1 != null && !"".equalsIgnoreCase(s1)) {
+//                queryStr.append("chapterdetailtitle:")
+//                        .append(s1).append(" ");
+//            }
+//        }
+
 //        for (String s1 : s) {
 //            s1 = s1.trim();
 //            if (s1 != null && !"".equalsIgnoreCase(s1)) {
@@ -121,15 +132,22 @@ public class BookServiceImpl implements BookService {
 //                        .append(s1).append(" ");
 //            }
 //        }
+
+
         if (!(course == null || "".equalsIgnoreCase(course.trim()))) {
-            queryStr.append("coursename:").append(course);
+            queryStr.append(" AND ").append(course);
         }
 
         System.out.println("查询条件：" + queryStr.toString());
+        query.set("df","searchText");
+//        query.set("defType","dismax");
         query.set("q", queryStr.toString());
-//        query.set("sort", "chapterdetailtitle asc");
 
-//        query.set("df", "chapterdetailcontent");
+        //设置权重
+//        query.set("qf","courseshort^50 chapterdetailtitle^20 chapterdetailcontent^2");
+        query.set("bf", "sum(div(chapterdetailtitle,0.01),if(exists(coursename),20000,0),div(chapterdetailcontent,0.1)");
+
+
         query.set("fl", "bookaddr,chapterdetailaddr,coursename,chaptertitle,bookid,chpterid,bookname,courseshort,chapterdetailtitle,chapterdetailcontent,chapterdetailid,id,chapterdetailhtmlid");
 
 //        设置高亮
@@ -140,6 +158,8 @@ public class BookServiceImpl implements BookService {
         query.setHighlightFragsize(100);
         query.setHighlightSimplePre("<text class='highlight-detail'>");
         query.setHighlightSimplePost("</text>");
+
+
 
         if (0 == pageSize) {
             pageSize = 10;
@@ -315,6 +335,5 @@ public class BookServiceImpl implements BookService {
             e.printStackTrace();
         }
         return CHILD_PATH + s;
-
     }
 }

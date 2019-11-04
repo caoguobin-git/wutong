@@ -1,31 +1,145 @@
-<div class="row" id="admin-page-users">
+<div class="row"
+     id="admin-page-users">
     <div class="col-lg-10 col-lg-offset-1">
         <div class="row">
             <p style="text-align: right">
-                <button class="btn btn-info btn-sm">添加</button>
+                <button data-toggle="modal"
+                        data-target="#myModal"
+                        class="btn btn-info btn-sm">
+                    添加
+                </button>
             </p>
+            <!-- 模态框（Modal） -->
+            <div class="modal fade"
+                 id="myModal"
+                 tabindex="-1"
+                 role="dialog"
+                 aria-labelledby="myModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button"
+                                    class="close"
+                                    data-dismiss="modal"
+                                    aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title"
+                                id="myModalLabel">
+                                模态框（Modal）标题</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="input-group">
+                                <span class="input-group-addon">用&nbsp;户&nbsp;名：</span>
+                                <input v-model="newUserUsername"
+                                       type="text"
+                                       class="form-control">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">密&nbsp;&nbsp;&nbsp;&nbsp;码：</span>
+                                <input v-model="newUserPassword"
+                                       type="password"
+                                       class="form-control">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">重复密码：</span>
+                                <input v-model="newUserPasswordRepeat"
+                                       type="password"
+                                       class="form-control">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">专&nbsp;&nbsp;&nbsp;&nbsp;业：</span>
+                                <select v-model="newUserCourse"
+                                        class="form-control">
+                                    <option>
+                                        检测
+                                    </option>
+                                    <option>
+                                        检修
+                                    </option>
+                                    <option>
+                                        评价
+                                    </option>
+                                    <option>
+                                        验收
+                                    </option>
+                                    <option>
+                                        运维
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button"
+                                    class="btn btn-default"
+                                    data-dismiss="modal">
+                                取消
+                            </button>
+                            <button @click="saveNewUser()"
+                                    type="button"
+                                    data-dismiss="modal"
+                                    class="btn btn-primary">
+                                确认添加
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal -->
+            </div>
         </div>
         <div class="row"
              style="height: 500px;overflow-y:scroll;">
             <table class="table table-bordered table-hover table-striped">
-                <caption class="caption">所有用户</caption>
+                <caption
+                        class="caption">
+                    所有用户
+                </caption>
                 <tr>
-                    <th>用户名</th>
-                    <th>密码</th>
-                    <th>角色</th>
-                    <th>创建时间</th>
-                    <th>修改时间</th>
-                    <th>操作</th>
+                    <th>
+                        用户名
+                    </th>
+                    <th>
+                        角色
+                    </th>
+                    <th>
+                        状态
+                    </th>
+                    <th>
+                        创建时间
+                    </th>
+                    <th>
+                        修改时间
+                    </th>
+                    <th>
+                        操作
+                    </th>
                 </tr>
                 <tr v-for="item,index in users">
-                    <td><span style="font-weight: bolder">{{item.username}}</span></td>
-                    <td>{{item.password}}</td>
-                    <td>{{item.role}}</td>
-                    <td>{{new Date(item.createTime).toLocaleString()}}</td>
-                    <td>{{new Date(item.updateTime).toLocaleString()}}</td>
                     <td>
-                        <button @click="updateUserById(item.userId)" class="btn btn-sm btn-success">修改</button>
-                        <button @click="removeUserById(item.userId)" class="btn btn-sm btn-danger">删除</button>
+                        <span style="font-weight: bolder">{{item.username}}</span>
+                    </td>
+                    <!--                    <td>{{item.password}}</td>-->
+                    <td>
+                        {{item.role}}
+                    </td>
+                    <td>
+                        {{item.valid?'启用':'禁用'}}
+                    </td>
+                    <td>
+                        {{new
+                        Date(item.createTime).toLocaleString()}}
+                    </td>
+                    <td>
+                        {{new
+                        Date(item.updateTime).toLocaleString()}}
+                    </td>
+                    <td>
+                        <button @click="updateUserById(item.userId,item.valid)"
+                                class="btn btn-sm btn-success">
+                            {{item.valid?'禁用':'启用'}}
+                        </button>
                     </td>
                 </tr>
             </table>
@@ -34,39 +148,80 @@
 </div>
 
 <script>
-    var users=new Vue({
-        el:'#admin-page-users',
-        data:{
-            users:[]
+    var users = new Vue({
+        el: '#admin-page-users',
+        data: {
+            newUserUsername: '',
+            newUserPassword: '',
+            newUserCourse: '检测',
+            newUserPasswordRepeat: '',
+            users: []
         },
-        methods:{
-            updateUserById:function (val) {
-                console.log('修改用户：'+val)
+        methods: {
+            saveNewUser: function () {
+                if (this.newUserPassword!=this.newUserPasswordRepeat){
+                    alert('两次密码不一致');
+                    return;
+                }
+                var param = {
+                    username: this.newUserUsername,
+                    password: this.newUserPassword,
+                    role: this.newUserCourse
+                }
+                console.log(param);
+                var url="/user/register";
+                $.ajax({
+                    url:url,
+                    data:param,
+                    type:'post',
+                    dataType:'json',
+                    success:function (result) {
+                        console.log(result);
+                        users.getAllUsers();
+                    }
+                })
             },
-            removeUserById:function (val) {
-                console.log('删除用户：'+val)
-            },
-            getAllUsers:function () {
-                var url = "/user/getAllUsers";
-                var param={
-                    usertoken:'1D2B42EAF3FF292A71C417F1C97A5JDJ'
+            updateUserById: function (userid, valid) {
+                console.log('修改用户：' + userid, valid);
+                var url = '/user/updateUserById';
+                var param = {
+                    userId: userid,
+                    valid: valid,
+                    usertoken: '1D2B42EAF3FF292A71C417F1C97A5JDJ'
                 }
 
                 $.ajax({
-                    url:url,
-                    type:'get',
-                    data:param,
-                    dataType:'json',
-                    success:function (result) {
-                        users.users.splice(0,users.users.length);
-                        for(var i=0;i<result.data.length;i++){
+                    url: url,
+                    data: param,
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (result) {
+                        console.log(result);
+                        users.getAllUsers();
+                    }
+                })
+            },
+            getAllUsers: function () {
+                var url = "/user/getAllUsers";
+                var param = {
+                    usertoken: '1D2B42EAF3FF292A71C417F1C97A5JDJ'
+                }
+
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    data: param,
+                    dataType: 'json',
+                    success: function (result) {
+                        users.users.splice(0, users.users.length);
+                        for (var i = 0; i < result.data.length; i++) {
                             users.users.push(result.data[i])
                         }
                     }
                 })
             }
         },
-        mounted:function () {
+        mounted: function () {
             this.getAllUsers()
         }
     })

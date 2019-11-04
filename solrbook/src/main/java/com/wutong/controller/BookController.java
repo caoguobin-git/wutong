@@ -12,6 +12,8 @@ import com.google.common.base.Strings;
 import com.wutong.common.entity.*;
 import com.wutong.common.vo.JsonResult;
 import com.wutong.service.BookService;
+import com.wutong.service.UserService;
+import lombok.experimental.PackagePrivate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class BookController {
 
     @Autowired
     private BookService bookService;
+
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(value = "/getBook")
     @ResponseBody
@@ -115,7 +120,7 @@ public class BookController {
         log.info(keyWords);
         log.info(course);
         if (!Strings.isNullOrEmpty(usertoken)) {
-            UserEntity userEntity = UserController.loginUsers.get(usertoken);
+            UserEntity userEntity = userService.findUserById(usertoken);
             if (userEntity != null) {
                 course = userEntity.getRole();
             }
@@ -140,6 +145,7 @@ public class BookController {
                 }
             }
         }
+        log.info(course);
 
         Map<String, Object> results = bookService.searchKeyWords(keyWords, course, pageSize, currentPage);
         return new JsonResult(results);

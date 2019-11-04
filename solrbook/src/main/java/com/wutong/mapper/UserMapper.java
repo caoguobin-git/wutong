@@ -19,4 +19,8 @@ public interface UserMapper {
     void register(@Param("userId") String userId, @Param("username") String username, @Param("password") String password, @Param("salt") String salt, @Param("role") String role);
 
     List<UserEntity> getAllUsers();
+
+    UserEntity findUserById(@Param("usertoken") String usertoken);
+
+    int updateUserById(@Param("userId") String userid, @Param("valid") boolean b);
 }

@@ -16,4 +16,8 @@ public interface UserService {
     UserEntity userLogin(String username, String password);
 
     List<UserEntity> getAllUsers();
+
+    UserEntity findUserById(String usertoken);
+
+    String updateUserById(String userid, boolean b);
 }

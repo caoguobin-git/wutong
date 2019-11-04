@@ -15,6 +15,7 @@ public class UserEntity {
     private String password;
     private String salt;
     private String role;
+    private boolean valid;
     private Timestamp createTime;
     private Timestamp updateTime;
 
@@ -56,6 +57,14 @@ public class UserEntity {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 
     public Timestamp getCreateTime() {

@@ -14,4 +14,12 @@
     <select id="getAllUsers" resultType="com.wutong.common.entity.UserEntity">
         select * from user_info order by role
     </select>
+
+    <select id="findUserById" resultType="com.wutong.common.entity.UserEntity">
+        select * from user_info ui where ui.user_id=#{usertoken}
+    </select>
+
+    <update id="updateUserById">
+        update user_info ui set valid=#{valid} where ui.user_id=#{userId}
+    </update>
 </mapper>

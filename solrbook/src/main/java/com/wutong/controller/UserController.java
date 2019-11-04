@@ -80,4 +80,14 @@ public class UserController {
         List<UserEntity> users= userService.getAllUsers();
         return new JsonResult(users);
     }
+
+    @RequestMapping(value = "/updateUserById",method = RequestMethod.POST)
+    @ResponseBody
+    public JsonResult updateUserById(String userId,boolean valid){
+        String result = userService.updateUserById(userId,!valid);
+        if ("ok".equals(result)){
+            return new JsonResult("状态修改成功");
+        }
+        return new JsonResult("405","状态修改失败",null);
+    }
 }

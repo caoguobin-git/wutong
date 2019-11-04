@@ -95,7 +95,8 @@
             </div>
             <div class="input-group">
                 <span class="input-group-addon">文档地址：</span>
-                <p class="form-control">{{books[currentBookIndex].bookAddr}}</p>
+                <p class="form-control">
+                    {{books[currentBookIndex].bookAddr}}</p>
             </div>
             <div class="input-group">
                 <span class="input-group-addon">章节：</span>
@@ -117,7 +118,9 @@
 
             <div class="input-group">
                 <span class="input-group-addon">已有二级目录：</span>
-                <p class="form-control"><span v-for="chapterDetail in chapterDetails">{{chapterDetail.chapterDetailTitle}}; </span></p>
+                <p class="form-control">
+                    <span v-for="chapterDetail in chapterDetails">{{chapterDetail.chapterDetailTitle}}; </span>
+                </p>
             </div>
             <div class="input-group">
                 <span class="input-group-addon">新目录：</span>
@@ -128,6 +131,38 @@
                 <span class="btn btn-sm btn-info input-group-addon"
                       @click="saveChapterDetailByChapterId()">添加</span>
             </div>
+            <div class="btn-group">
+                <button @click="toTitle()"
+                        type="button"
+                        class="btn btn-default">
+                    标题
+                </button>
+                <button @click="toP()"
+                        type="button"
+                        class="btn btn-default">
+                    段落
+                </button>
+                <button @click="toList()"
+                        type="button"
+                        class="btn btn-default">
+                    列表
+                </button>
+                <button @click="inputPic()"
+                        type="button"
+                        class="btn btn-default">
+                    图片
+                </button>
+                <input @change="uploadPic($event)"
+                       id="pic-upload-input"
+                       style="display: none"
+                       type="file">
+
+            </div>
+            <textarea
+                    class="form-control"
+                    v-model="inputText"
+                    style="resize: none;width: 100%;height: 500px"></textarea>
+            <span v-html="htmlText"></span>
         </div>
         <div class="row"
              style="color: black"
@@ -139,88 +174,6 @@
 </div>
 
 <script>
-    var E = window.wangEditor;
-    var editor = new E('#editor');
-    // 自定义菜单配置
-    editor.customConfig.menus = [
-        'head',  // 标题
-        'bold',  // 粗体
-        'fontSize',  // 字号
-        'fontName',  // 字体
-        'italic',  // 斜体
-        'underline',  // 下划线
-        'strikeThrough',  // 删除线
-        'foreColor',  // 文字颜色
-        'backColor',  // 背景颜色
-        'link',  // 插入链接
-        'list',  // 列表
-        'justify',  // 对齐方式
-        'quote',  // 引用
-        'emoticon',  // 表情
-        'image',  // 插入图片
-        'table',  // 表格
-        'video',  // 插入视频
-        'code',  // 插入代码
-        'undo',  // 撤销
-        'redo'  // 重复
-    ];
-
-    // 上传图片到服务器
-    editor.customConfig.uploadImgServer = '/book/savePic?usertoken=1D2B42EAF3FF292A71C417F1C97A5JDJ';
-    // 3M
-    editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024;
-    // 限制一次最多上传 5 张图片
-    editor.customConfig.uploadImgMaxLength = 1;
-    // 自定义文件名
-    editor.customConfig.uploadFileName = 'picFile';
-    // 将 timeout 时间改为 3s
-    editor.customConfig.uploadImgTimeout = 5000;
-
-    editor.customConfig.uploadImgHooks = {
-        before: function (xhr, editor, files) {
-            // 图片上传之前触发
-            // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象，files 是选择的图片文件
-
-            // 如果返回的结果是 {prevent: true, msg: 'xxxx'} 则表示用户放弃上传
-            // return {
-            //     prevent: true,
-            //     msg: '放弃上传'
-            // }
-            // alert("前奏");
-        },
-        success: function (xhr, editor, result) {
-            // 图片上传并返回结果，图片插入成功之后触发
-            // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象，result 是服务器端返回的结果
-
-            // alert(JSON.stringify(url));
-            editor.txt.append(result.data);
-            alert("成功");
-        },
-        fail: function (xhr, editor, result) {
-            // 图片上传并返回结果，但图片插入错误时触发
-            // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象，result 是服务器端返回的结果
-            alert("失败");
-        },
-        error: function (xhr, editor) {
-            // 图片上传出错时触发
-            // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象
-            // alert("错误");
-        },
-        // 如果服务器端返回的不是 {errno:0, data: [...]} 这种格式，可使用该配置
-        // （但是，服务器端返回的必须是一个 JSON 格式字符串！！！否则会报错）
-        customInsert: function (insertImg, result, editor) {
-            // 图片上传并返回结果，自定义插入图片的事件（而不是编辑器自动插入图片！！！）
-            // insertImg 是插入图片的函数，editor 是编辑器对象，result 是服务器端返回的结果
-            // 举例：假如上传图片成功后，服务器端返回的是 {url:'....'} 这种格式，即可这样插入图片：
-            var url = 'http://image.fxyilan.com/' + result.data;
-            console.log(url)
-            insertImg(url)
-            // result 必须是一个 JSON 格式字符串！！！否则报错
-        }
-    }
-    editor.create();
-
-
     function preview() {
         console.log(editor.$textElem.html());
     }
@@ -239,38 +192,93 @@
             currentChapterDetailIndex: '',
             chapterDetails: [],
             newChapterTitle: '',
-            newChapterDetailTitle:''
+            newChapterDetailTitle: '',
+            inputText: '',
+            htmlText: ''
         },
         methods: {
-            saveChapterDetailByChapterId: function () {
-                var chapterId = this.chapters[this.currentChapterIndex].chapterId;
-                console.log(chapterId);
-                var chapterDetailTitle=this.newChapterDetailTitle;
-                console.log(chapterDetailTitle)
-                var content=editor.$textElem.html();
-                console.log(content);
+            uploadPic: function (event) {
+                var url = "/book/savePic";
 
-                var url='/book/saveChapterDetailByChapterId';
-                var param={
-                    chapterId:chapterId,
-                    chapterDetailTitle: chapterDetailTitle,
-                    chapterDetailContent:content,
-                    usertoken:this.usertoken
-                }
-
+                var params = new FormData();
+                params.append('usertoken', newBook.usertoken);
+                params.append('picFile', event.target.files[0]);
+                console.log(params)
                 $.ajax({
-                    url:url,
-                    data:param,
-                    type:'post',
-                    dataType:'json',
-                    success:function (result) {
+                    url: url,
+                    data: params,
+                    type: 'post',
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    async: false,
+                    success: function (result) {
                         console.log(result)
-                        newBook.getChaptersByBookId();
-                        newBook.newChapterDetailTitle=''
-                        editor.$textElem.html('')
+                        newBook.htmlText += '<img class="wutong-pic" src="https://doc.tjrckj.net/' + result.data + '"></img>'
                     }
                 })
             },
+            inputPic: function () {
+                document.getElementById('pic-upload-input').click()
+            },
+            toTitle: function () {
+                var text = window.getSelection().toString();
+                console.log(text);
+                this.htmlText += '<p class="wutong-title1">' + text + '</p>'
+            },
+            toP: function () {
+                var text = window.getSelection().toString();
+                var texts = text.split('\n');
+                for (var i = 0; i < texts.length; i++) {
+                    this.htmlText += '<p class="wutong-paragraph">' + text + '</p>'
+                }
+
+            },
+            toList: function () {
+                var text = window.getSelection().toString();
+                var texts = text.split('\n');
+                var result = '<ul class="wutong-list">';
+                console.log(text);
+                for (var i = 0; i < texts.length; i++) {
+                    if (!(texts[i] == '\n' || texts[i] == null || texts[i] == '')) {
+                        result += '<li>' + texts[i] + '</li>';
+                    }
+                }
+                result += '</ul>';
+                this.htmlText += result;
+            },
+            saveChapterDetailByChapterId: function () {
+                var chapterId = this.chapters[this.currentChapterIndex].chapterId;
+                console.log(chapterId);
+                var chapterDetailTitle = this.newChapterDetailTitle;
+                console.log(chapterDetailTitle)
+                // var content = editor.$textElem.html();
+                var content = this.htmlText;
+                console.log(content);
+
+                var url = '/book/saveChapterDetailByChapterId';
+                var param = {
+                    chapterId: chapterId,
+                    chapterDetailTitle: chapterDetailTitle,
+                    chapterDetailContent: content,
+                    usertoken: this.usertoken
+                }
+
+                $.ajax({
+                    url: url,
+                    data: param,
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (result) {
+                        console.log(result)
+                        newBook.getChaptersByBookId();
+                        newBook.newChapterDetailTitle = '';
+                        newBook.htmlText = '';
+                        newBook.inputText = '';
+                    }
+                })
+            }
+            ,
             saveChapterByBookId: function () {
                 var url = "/book/saveChapterByBookId";
                 var param = {
@@ -290,10 +298,12 @@
                         newBook.getChaptersByBookId();
                     }
                 })
-            },
+            }
+            ,
             setChapterDetails: function () {
                 console.log("设置内容")
-            },
+            }
+            ,
             getCourses: function () {
                 var url = '/book/getCourses';
                 var param = {
@@ -313,7 +323,8 @@
                         newBook.getBooksByCourseId();
                     }
                 })
-            },
+            }
+            ,
             getBooksByCourseId: function () {
                 console.log(this.courses[this.currentCourseIndex].courseId)
                 var url = '/book/getBooksByCourseId';
@@ -334,7 +345,8 @@
                         newBook.getChaptersByBookId();
                     }
                 })
-            },
+            }
+            ,
             getChaptersByBookId: function () {
 
                 var url = '/book/getChaptersByBookId';
@@ -355,7 +367,8 @@
                         newBook.getChapterdetailsByChapterId();
                     }
                 })
-            },
+            }
+            ,
 
             getChapterdetailsByChapterId: function () {
 

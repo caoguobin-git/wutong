@@ -54,3 +54,4 @@ mybatis:
 logging:
   level:
     com.wutong.mapper.BookMapper: debug
+    com.wutong.mapper.UserMapper: debug
