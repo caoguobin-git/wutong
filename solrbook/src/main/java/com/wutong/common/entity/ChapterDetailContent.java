@@ -1,20 +1,20 @@
 /***********************************************
- * File Name: ChapterDetailEntity
+ * File Name: ChapterDetailContentNew
  * Author: caoguobin
  * mail: caoguobin@live.com
- * Created Time: 11 10 2019 上午 11:53
+ * Created Time: 14 11 2019 20:28
  ***********************************************/
 
 package com.wutong.common.entity;
 
+import java.util.List;
+import java.util.Map;
 
-import java.io.Serializable;
-
-public class ChapterDetailEntity implements Serializable {
+public class ChapterDetailContent {
     private int chapterDetailId;
     private int chapterId;
     private String chapterDetailTitle;
-    private String chapterDetailContent;
+    private Object chapterDetailContent;
     private String chapterDetailAddr;
 
     public int getChapterDetailId() {
@@ -41,11 +41,11 @@ public class ChapterDetailEntity implements Serializable {
         this.chapterDetailTitle = chapterDetailTitle;
     }
 
-    public String getChapterDetailContent() {
+    public Object getChapterDetailContent() {
         return chapterDetailContent;
     }
 
-    public void setChapterDetailContent(String chapterDetailContent) {
+    public void setChapterDetailContent(Object chapterDetailContent) {
         this.chapterDetailContent = chapterDetailContent;
     }
 
@@ -66,11 +66,20 @@ public class ChapterDetailEntity implements Serializable {
                 .append(chapterId);
         sb.append(",\"chapterDetailTitle\":\"")
                 .append(chapterDetailTitle).append('\"');
-        sb.append(",\"chapterDetailContent\":\"")
-                .append(chapterDetailContent).append('\"');
+        sb.append(",\"chapterDetailContent\":")
+                .append(getHH(chapterDetailContent));
         sb.append(",\"chapterDetailAddr\":\"")
                 .append(chapterDetailAddr).append('\"');
         sb.append('}');
+        return sb.toString();
+    }
+
+    private String getHH(Object chapterDetailContent) {
+        StringBuilder sb=new StringBuilder();
+        List<Map> list= (List<Map>) chapterDetailContent;
+        for (Map map : list) {
+            sb.append(map.toString());
+        }
         return sb.toString();
     }
 }

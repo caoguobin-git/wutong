@@ -45,10 +45,7 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private BookMapper bookMapper;
 
-    @Autowired
-    private UserMapper userMapper;
-
-    final static String solrUrl = "http://106.13.51.176:8983/solr/book";
+    final static String solrUrl = "http://118.190.156.52:8983/solr/book";
 
     final static HttpSolrClient solrServer = new HttpSolrClient.Builder(solrUrl)
             .withConnectionTimeout(10000)

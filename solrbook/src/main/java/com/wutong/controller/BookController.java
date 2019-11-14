@@ -8,6 +8,7 @@
 package com.wutong.controller;
 
 
+import com.alibaba.druid.sql.dialect.db2.parser.DB2Lexer;
 import com.google.common.base.Strings;
 import com.wutong.common.entity.*;
 import com.wutong.common.vo.JsonResult;
@@ -16,6 +17,11 @@ import com.wutong.service.UserService;
 import lombok.experimental.PackagePrivate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +29,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import sun.java2d.pipe.SpanIterator;
 
+import javax.naming.ldap.HasControls;
 import java.io.IOException;
 import java.util.*;
 
@@ -245,4 +253,124 @@ public class BookController {
     }
 
 
+    @RequestMapping(value = "/getBookById")
+    @ResponseBody
+    public JsonResult getBookById(Integer bookId, String keyWords) {
+        log.info("getBookById");
+        List<BookEntity> book = getBook(bookId);
+        if (book.size() == 0) {
+            return new JsonResult("404", "未找到当前文档", null);
+        }
+        List<ChapterEntity> chapters = book.get(0).getChapters();
+        List<ChapterEntityNew> chapterResult = new LinkedList<>();
+        for (ChapterEntity chapter : chapters) {
+            ChapterEntityNew chapterEntityNew=new ChapterEntityNew();
+            chapterEntityNew.setBookId(chapter.getBookId());
+            chapterEntityNew.setChapterContent(chapter.getChapterContent());
+            chapterEntityNew.setChapterId(chapter.getChapterId());
+            chapterEntityNew.setChapterTitle(chapter.getChapterTitle());
+            List<ChapterDetailEntity> chapterDetails = chapter.getChapterDetails();
+            chapterEntityNew.setChapterDetails(setChapterDetails(chapterDetails));
+
+            chapterResult.add(chapterEntityNew);
+            for (ChapterEntityNew entityNew : chapterResult) {
+            }
+        }
+        Map<String, Object> result = new HashMap<>();
+//
+//        String chapterStr = sb.toString();
+//        if (!Strings.isNullOrEmpty(keyWords)) {
+//            String[] keywordArr = keyWords.split(",");
+//            for (int i = 0; i < keywordArr.length; i++) {
+//                chapterStr = chapterStr.replaceAll(keywordArr[i], "<text class='highlight-detail'>" + keywordArr[i] + "</text>");
+//            }
+//        }
+//
+        //去除转义
+//        chapterStr= StringEscapeUtils.unescapeJava(chapterStr);
+//        chapterStr=chapterStr.replaceAll("\\n","");
+        result.put("courseName", book.get(0).getCourseName());
+        result.put("bookName", book.get(0).getBookName());
+        result.put("bookAddr", book.get(0).getBookAddr());
+        result.put("chapters", chapterResult);
+//        return new JsonResult(result);
+        return new JsonResult(result);
+    }
+
+    private List<ChapterDetailContent> setChapterDetails(List<ChapterDetailEntity> chapterDetails) {
+        List<ChapterDetailContent> list=new LinkedList<>();
+
+        for (ChapterDetailEntity chapterDetail : chapterDetails) {
+            ChapterDetailContent chapterDetailContent=new ChapterDetailContent();
+            chapterDetailContent.setChapterDetailTitle(chapterDetail.getChapterDetailTitle());
+            chapterDetailContent.setChapterDetailId(chapterDetail.getChapterDetailId());
+            chapterDetailContent.setChapterId(chapterDetail.getChapterId());
+            chapterDetailContent.setChapterDetailAddr(chapterDetail.getChapterDetailAddr());
+            chapterDetailContent.setChapterDetailContent(getChapterDetailContentNew(chapterDetail.getChapterDetailContent()));
+            list.add(chapterDetailContent);
+        }
+//        List<ChapterDetailContent> list=new LinkedList<>();
+//        for (ChapterDetailEntity chapterDetail : chapterDetails) {
+//            ChapterDetailContent chapterDetailContent=new ChapterDetailContent();
+//            System.out.println("detail::::"+chapterDetailContent);
+//            chapterDetailContent.setChapterDetailAddr(chapterDetail.getChapterDetailAddr());
+//            chapterDetailContent.setChapterId(chapterDetail.getChapterId());
+//            System.out.println("content"+chapterDetail.getChapterDetailContent());
+//            chapterDetailContent.setChapterDetailContent(getChapterDetailContentNew(chapterDetail.getChapterDetailContent()));
+//            chapterDetailContent.setChapterDetailId(chapterDetail.getChapterDetailId());
+//            chapterDetailContent.setChapterDetailTitle(chapterDetail.getChapterDetailTitle());
+//        }
+        return list;
+    }
+
+    private Object getChapterDetailContentNew(String chapterDetailContent) {
+//        System.out.println(chapterDetailContent);
+        chapterDetailContent=chapterDetailContent.replaceAll("<br>","");
+        chapterDetailContent=chapterDetailContent.replaceAll("\\n","");
+        List<Map> result=new LinkedList<>();
+        Document doc = Jsoup.parse(chapterDetailContent);
+//        System.out.println(doc.toString());
+        Elements allElements = doc.getElementsByTag("div");
+        for (Element element : allElements) {
+            Elements children = element.children();
+            for (Element child : children) {
+                System.out.println(child.toString());
+                Map<String,Object> map=new HashMap<>();
+                switch (child.nodeName()){
+                    case "p":
+                        map.put("type", "p");
+                        map.put("content", child.text());
+                        break;
+                    case "img":
+                        map.put("type", "img");
+                        map.put("content", child.attr("src"));
+                        break;
+                    case "ul":
+                    case "ol":
+                        System.out.println("list");
+                        map.put("type", "list");
+                        List<String> strings=new LinkedList<>();
+                        System.out.println("zheshige list----------------");
+                        Elements li = child.select("li");
+                        for (Element element1 : li) {
+                            strings.add(element1.text());
+                        }
+                        map.put("content",strings);
+
+                        break;
+                    case "h5":{
+                        map.put("type", "title");
+
+                        map.put("content", child.text());
+                        break;
+                    }
+
+                }
+//                System.out.println(map);
+                result.add(map);
+            }
+        }
+
+        return result;
+    }
 }

@@ -23,7 +23,7 @@ public class WebAppConfig extends WebMvcConfigurationSupport {
 
         registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/user/**","/admin/**","/wangEditor/**","/bootstrap/**","/js/**","/css/**","/2dydwc8rOJ.txt");
+                .excludePathPatterns("/book/**","/user/**","/admin/**","/wangEditor/**","/bootstrap/**","/js/**","/css/**","/2dydwc8rOJ.txt");
     }
 
     private static final String[] CLASSPATH_RESOURCE_LOCATIONS = {
