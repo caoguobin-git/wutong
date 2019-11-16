@@ -8,13 +8,13 @@
 package com.wutong.serviceImpl;
 
 
+import com.google.common.base.Strings;
 import com.wutong.common.entity.BookEntity;
 import com.wutong.common.entity.ChapterDetailEntity;
 import com.wutong.common.entity.ChapterEntity;
 import com.wutong.common.entity.CourseEntity;
 import com.wutong.common.util.FilePathUtil;
 import com.wutong.mapper.BookMapper;
-import com.wutong.mapper.UserMapper;
 import com.wutong.service.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -96,7 +96,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Map<String, Object> searchKeyWords(String keywords, String course, int pageSize, int currentPage) {
+    public Map<String, Object> searchKeyWords(String keywords, String course, int pageSize, int currentPage, String select) {
         SolrQuery query = new SolrQuery();
         StringBuilder queryStr = new StringBuilder();
         if (null == keywords || "".equalsIgnoreCase(keywords.trim())) {
@@ -132,7 +132,14 @@ public class BookServiceImpl implements BookService {
 
 
         if (!(course == null || "".equalsIgnoreCase(course.trim()))) {
+            if (course.trim().equalsIgnoreCase("admin")){
+                course="检测";
+            }
             queryStr.append(" AND ").append(course);
+        }
+
+        if (!Strings.isNullOrEmpty(select)){
+            queryStr.append(" AND courseshort:").append(select);
         }
 
         System.out.println("查询条件：" + queryStr.toString());

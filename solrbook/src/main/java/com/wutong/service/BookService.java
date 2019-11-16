@@ -20,7 +20,7 @@ public interface BookService {
 
     List<String> getSuggest(String keyWord);
 
-    Map<String, Object> searchKeyWords(String keywords, String course, int pageSize, int currentPage);
+    Map<String, Object> searchKeyWords(String keywords, String course, int pageSize, int currentPage, String select);
 
     List<Map<String, String>> getContent();
 

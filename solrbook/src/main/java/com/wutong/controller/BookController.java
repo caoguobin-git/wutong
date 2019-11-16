@@ -124,7 +124,7 @@ public class BookController {
 
     @RequestMapping("/searchKeyWords")
     @ResponseBody
-    public JsonResult searchKeyWords(String usertoken, String keyWords, String course, Integer pageSize, Integer currentPage) {
+    public JsonResult searchKeyWords(String usertoken, String keyWords, String course, Integer pageSize, Integer currentPage,String select) {
         log.info(keyWords);
         log.info(course);
         if (!Strings.isNullOrEmpty(usertoken)) {
@@ -155,7 +155,7 @@ public class BookController {
         }
         log.info(course);
 
-        Map<String, Object> results = bookService.searchKeyWords(keyWords, course, pageSize, currentPage);
+        Map<String, Object> results = bookService.searchKeyWords(keyWords, course, pageSize, currentPage,select);
         return new JsonResult(results);
     }
 
