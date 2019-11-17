@@ -264,6 +264,7 @@ public class BookServiceImpl implements BookService {
         }
         pageResult.put("currentPage", currentPage);
         pageResult.put("results", results);
+        pageResult.put("wordAnalysis",getWordsFromString(keywords));
 
         return pageResult;
     }
@@ -351,7 +352,10 @@ public class BookServiceImpl implements BookService {
             AnalysisResponseBase.AnalysisPhase next = it.next();
             List<AnalysisResponseBase.TokenInfo> tokens = next.getTokens();
             for (AnalysisResponseBase.TokenInfo token : tokens) {
-                resultSet.add(token.getText());
+                //去除长度小于2的结果
+                if (token.getText().length()>1){
+                    resultSet.add(token.getText());
+                }
             }
         }
         resultSet.add(wordStr);
