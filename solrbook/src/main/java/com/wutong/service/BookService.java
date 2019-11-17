@@ -37,4 +37,6 @@ public interface BookService {
     String saveChapterByBookId(Integer bookId, String chapterTitle);
 
     String saveChapterDetailByChapterId(Integer chapterId, String chapterDetailTitle, String chapterDetailContent);
+
+    List<String> getWordsFromString(String wordStr);
 }

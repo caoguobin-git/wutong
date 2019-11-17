@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.request.FieldAnalysisRequest;
+import org.apache.solr.client.solrj.response.AnalysisResponseBase;
+import org.apache.solr.client.solrj.response.FieldAnalysisResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.common.SolrDocument;
@@ -324,6 +327,35 @@ public class BookServiceImpl implements BookService {
         } else {
             return "failed";
         }
+    }
+
+    @Override
+    public List<String> getWordsFromString(String wordStr) {
+        FieldAnalysisRequest request=new FieldAnalysisRequest("/analysis/field");
+        request.addFieldName("searchText");
+        request.setFieldValue("");
+        request.setQuery(wordStr);
+        FieldAnalysisResponse response=null;
+        try {
+            response=request.process(solrServer);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        Set<String> resultSet=new HashSet<>();
+        Iterable<AnalysisResponseBase.AnalysisPhase> searchText = response.getFieldNameAnalysis("searchText").getQueryPhases();
+
+        Iterator<AnalysisResponseBase.AnalysisPhase> it = searchText.iterator();
+
+        while (it.hasNext()){
+            AnalysisResponseBase.AnalysisPhase next = it.next();
+            List<AnalysisResponseBase.TokenInfo> tokens = next.getTokens();
+            for (AnalysisResponseBase.TokenInfo token : tokens) {
+                resultSet.add(token.getText());
+            }
+        }
+        List<String> result=new ArrayList<>(resultSet);
+        return result;
     }
 
 
