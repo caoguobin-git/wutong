@@ -354,6 +354,7 @@ public class BookServiceImpl implements BookService {
                 resultSet.add(token.getText());
             }
         }
+        resultSet.add(wordStr);
         List<String> result=new ArrayList<>(resultSet);
         return result;
     }
