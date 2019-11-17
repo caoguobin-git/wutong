@@ -8,19 +8,16 @@
 package com.wutong.controller;
 
 
-import com.alibaba.druid.sql.dialect.db2.parser.DB2Lexer;
 import com.google.common.base.Strings;
 import com.wutong.common.entity.*;
 import com.wutong.common.vo.JsonResult;
 import com.wutong.service.BookService;
 import com.wutong.service.UserService;
-import lombok.experimental.PackagePrivate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,10 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import sun.java2d.pipe.SpanIterator;
 
-import javax.naming.ldap.HasControls;
-import java.io.IOException;
 import java.util.*;
 
 @Controller
@@ -251,7 +245,6 @@ public class BookController {
         String picUrl = bookService.savePic(picFile);
         return new JsonResult(picUrl);
     }
-
 
     @RequestMapping(value = "/getBookById")
     @ResponseBody
