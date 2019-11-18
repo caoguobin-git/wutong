@@ -27,6 +27,11 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.ModifiableSolrParams;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,15 +45,15 @@ import java.util.*;
 public class BookServiceImpl implements BookService {
 
 
-//    static final String ROOT_PATH = "e:/";
+    //    static final String ROOT_PATH = "e:/";
     static final String ROOT_PATH = "/usr/local/books/";
-//    static final String CHILD_PATH = "wutongpics";
+    //    static final String CHILD_PATH = "wutongpics";
     static final String CHILD_PATH = "pics";
 
     @Autowired
     private BookMapper bookMapper;
 
-    final static String solrUrl = "http://118.190.156.52:8983/solr/book";
+    final static String solrUrl = "http://127.0.0.1:8983/solr/book";
 
     final static HttpSolrClient solrServer = new HttpSolrClient.Builder(solrUrl)
             .withConnectionTimeout(10000)
@@ -106,47 +111,28 @@ public class BookServiceImpl implements BookService {
             queryStr.append("*:*").append(" ");
         }
         String[] s = keywords.split(" ");
-//        for (String s1 : s) {
-//            queryStr.append(s1).append(" AND ");
-//        }
         queryStr.append(String.join(" AND ", s));
-//        for (String s1 : s) {
-//            s1 = s1.trim();
-//            if (s1 != null && !"".equalsIgnoreCase(s1)) {
-//                queryStr.append("chapterdetailcontent:")
-//                        .append(s1).append(" ");
+
+
+        //添加按类别搜索
+//        if (!(course == null || "".equalsIgnoreCase(course.trim()))) {
+//            if (course.trim().equalsIgnoreCase("admin")) {
+//                course = "检测";
 //            }
-//        }
-//        for (String s1 : s) {
-//            s1 = s1.trim();
-//            if (s1 != null && !"".equalsIgnoreCase(s1)) {
-//                queryStr.append("chapterdetailtitle:")
-//                        .append(s1).append(" ");
-//            }
+//            queryStr.append(" AND ").append(course);
 //        }
 
-//        for (String s1 : s) {
-//            s1 = s1.trim();
-//            if (s1 != null && !"".equalsIgnoreCase(s1)) {
-//                queryStr.append("chaptertitle:")
-//                        .append(s1).append(" ");
-//            }
-//        }
-
-
-        if (!(course == null || "".equalsIgnoreCase(course.trim()))) {
-            if (course.trim().equalsIgnoreCase("admin")){
-                course="检测";
-            }
-            queryStr.append(" AND ").append(course);
-        }
-
-        if (!Strings.isNullOrEmpty(select)){
+        if (!Strings.isNullOrEmpty(select)) {
             queryStr.append(" AND courseshort:").append(select);
         }
 
+        //修改默认连字符
+        ModifiableSolrParams params = new ModifiableSolrParams();
+        params.set("q.op", "AND");
+        query.add(params);
+
         System.out.println("查询条件：" + queryStr.toString());
-        query.set("df","searchText");
+        query.set("df", "searchText");
 //        query.set("defType","dismax");
         query.set("q", queryStr.toString());
 
@@ -162,10 +148,9 @@ public class BookServiceImpl implements BookService {
         query.addHighlightField("bookname");
         query.addHighlightField("chapterdetailtitle");
         query.addHighlightField("chapterdetailcontent");
-        query.setHighlightFragsize(100);
+        query.setHighlightFragsize(9999999);
         query.setHighlightSimplePre("<text class='highlight-detail'>");
         query.setHighlightSimplePost("</text>");
-
 
 
         if (0 == pageSize) {
@@ -202,6 +187,7 @@ public class BookServiceImpl implements BookService {
 //        });
 
 
+        //去除course高亮
         String fieldName1 = "bookname";
         String fieldName2 = "chapterdetailtitle";
         String fieldName3 = "chapterdetailcontent";
@@ -215,8 +201,6 @@ public class BookServiceImpl implements BookService {
                         id1 = id1.replaceAll("<text class='highlight-detail'>" + course + "</text>", course);
                     }
                     result.setField(fieldName1, id1);
-
-
                 }
                 if (highlightingMap.get(id).get(fieldName2) != null) {
                     String id2 = highlightingMap.get(result.getFieldValue("id")).get(fieldName2).get(0);
@@ -228,9 +212,16 @@ public class BookServiceImpl implements BookService {
                 }
                 if (highlightingMap.get(id).get(fieldName3) != null) {
                     String id3 = highlightingMap.get(result.getFieldValue("id")).get(fieldName3).get(0);
+                    //System.out.println("开始===================================");
+                    //System.out.println(id3);
                     if (keywords.indexOf(course) == -1) {
                         id3 = id3.replaceAll("<text class='highlight-detail'>" + course + "</text>", course);
                     }
+
+                    //将img标签中的高亮去除
+
+                    //System.out.println(id3);
+                    //System.out.println("结束===================================");
                     result.setField(fieldName3, id3);
                 }
             }
@@ -242,7 +233,7 @@ public class BookServiceImpl implements BookService {
         for (int i = 0; i < results.size(); i++) {
             StringBuilder sb = new StringBuilder();
             sb.append("<div class='content-container>")
-            .append("<div class='searchListTitle'>")
+                    .append("<div class='searchListTitle'>")
                     .append(results.get(i).getFieldValue("chapterdetailtitle"))
                     .append("</div>")
                     .append("<div class='searchListTitle2'>")
@@ -253,8 +244,8 @@ public class BookServiceImpl implements BookService {
                     .append(results.get(i).getFieldValue("chaptertitle"))
                     .append("</div>")
                     .append(results.get(i).getFieldValue("chapterdetailcontent"))
-            .append("</div>");
-            results.get(i).setField("chapterdetailcontent",sb.toString());
+                    .append("</div>");
+            results.get(i).setField("chapterdetailcontent", sb.toString());
         }
         pageResult.put("numFound", numFound);
         pageResult.put("start", start);
@@ -264,7 +255,7 @@ public class BookServiceImpl implements BookService {
         }
         pageResult.put("currentPage", currentPage);
         pageResult.put("results", results);
-        pageResult.put("wordAnalysis",getWordsFromString(keywords));
+        pageResult.put("wordAnalysis", getWordsFromString(keywords));
 
         return pageResult;
     }
@@ -332,34 +323,39 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<String> getWordsFromString(String wordStr) {
-        FieldAnalysisRequest request=new FieldAnalysisRequest("/analysis/field");
-        request.addFieldName("searchText");
-        request.setFieldValue("");
+        FieldAnalysisRequest request = new FieldAnalysisRequest();
+//        request.addFieldName("searchText");
+        request.setFieldNames(Collections.singletonList("chapterdetailtitle"));
+        request.setFieldValue(wordStr);
         request.setQuery(wordStr);
-        FieldAnalysisResponse response=null;
+
+        Set<String> resultSet = new HashSet<>();
+        resultSet.add(wordStr.toLowerCase());
+
+        FieldAnalysisResponse response = null;
         try {
-            response=request.process(solrServer);
-        }catch (Exception e){
+            response = request.process(solrServer);
+        } catch (Exception e) {
             e.printStackTrace();
+            return new ArrayList<>(resultSet);
         }
 
-        Set<String> resultSet=new HashSet<>();
-        Iterable<AnalysisResponseBase.AnalysisPhase> searchText = response.getFieldNameAnalysis("searchText").getQueryPhases();
+        Iterable<AnalysisResponseBase.AnalysisPhase> searchText = response.getFieldNameAnalysis("chapterdetailtitle").getQueryPhases();
 
         Iterator<AnalysisResponseBase.AnalysisPhase> it = searchText.iterator();
 
-        while (it.hasNext()){
+        while (it.hasNext()) {
             AnalysisResponseBase.AnalysisPhase next = it.next();
             List<AnalysisResponseBase.TokenInfo> tokens = next.getTokens();
             for (AnalysisResponseBase.TokenInfo token : tokens) {
                 //去除长度小于2的结果
-                if (token.getText().length()>1){
-                    resultSet.add(token.getText());
+                if (token.getText().length() > 1) {
+                    resultSet.add(token.getText().toLowerCase());
                 }
             }
         }
-        resultSet.add(wordStr);
-        List<String> result=new ArrayList<>(resultSet);
+        List<String> result = new ArrayList<>(resultSet);
+
         return result;
     }
 

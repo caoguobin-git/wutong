@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/book")
@@ -117,7 +119,21 @@ public class BookController {
     @ResponseBody
     public JsonResult searchKeyWords(String usertoken, String keyWords, String course, Integer pageSize, Integer currentPage,String select) {
         log.info(keyWords);
-        log.info(course);
+
+
+//        if (flag){
+//            HashMap<String, Object> stringObjectHashMap = new HashMap<>();
+//            stringObjectHashMap.put("wordAnalysis",bookService.getWordsFromString(keyWords));
+//            stringObjectHashMap.put("numFound", 0);
+//            stringObjectHashMap.put("start", 0);
+//            stringObjectHashMap.put("pageSize", 100);
+//            stringObjectHashMap.put("currentPage", 1);
+//            stringObjectHashMap.put("results", new LinkedList<>());
+//
+//            return new JsonResult(stringObjectHashMap);
+//        }
+
+
         if (!Strings.isNullOrEmpty(usertoken)) {
             UserEntity userEntity = userService.findUserById(usertoken);
             if (userEntity != null) {
@@ -136,6 +152,18 @@ public class BookController {
         if (keyWords != null) {
             trim = keyWords.trim();
         }
+
+        Pattern pattern=Pattern.compile("\\w*");
+        String test=keyWords.replaceAll(" ", "");
+        Matcher matcher = pattern.matcher(test);
+        while (matcher.find()){
+            if (matcher.group().length()>0){
+                String trim1 = matcher.group(0).trim();
+                trim = trim.replaceAll(trim1, "");
+            }
+        }
+        log.info(trim);
+
         if (trim != null && trim.length() > 0) {
             String[] s = trim.split(" ");
             for (int i = 0; i < s.length; i++) {
@@ -146,7 +174,7 @@ public class BookController {
         }
         log.info(course);
 
-        Map<String, Object> results = bookService.searchKeyWords(keyWords, course, pageSize, currentPage,select);
+        Map<String, Object> results = bookService.searchKeyWords(trim, course, pageSize, currentPage,select);
         return new JsonResult(results);
     }
 
