@@ -47,24 +47,42 @@ var admin = new Vue({
                 ]
             },
             {
-                text:'文档相关设置',
-                value:[
+                text: '文档相关设置',
+                value: [
                     {
-                        text:'查看所有文档',
-                        value:'admin-body-all-book'
+                        text: '查看所有文档',
+                        value: 'admin-body-all-book'
                     },
                     {
-                        text:'上传新文档',
-                        value:'admin-body-new-book'
+                        text: '上传新文档',
+                        value: 'admin-body-new-book'
                     }
                 ]
             }
         ]
     },
-    methods:{
-        loadPage:function (val) {
+    methods: {
+        adminLogout: function () {
+            var url = '/admin/logout';
+            $.ajax({
+                url: url,
+                type: 'get',
+                dataType:'json',
+                success: function (result) {
+                    console.log(result);
+                    window.location.href = "/adminLoginPage"
+                },
+                complete:function (a,b) {
+                    console.log(a)
+                    console.log(b)
+                    window.location.href = "/adminLoginPage"
+                }
+            })
+        },
+
+        loadPage: function (val) {
             console.log(val);
-            $('#main-content').load('/admin/adminPages/'+val,function () {
+            $('#main-content').load('/admin/adminPages/' + val, function () {
 
             })
         }

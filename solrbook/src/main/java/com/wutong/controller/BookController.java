@@ -343,6 +343,9 @@ public class BookController {
 
     private Object getChapterDetailContentNew(String chapterDetailContent) {
 //        System.out.println(chapterDetailContent);
+        if (Strings.isNullOrEmpty(chapterDetailContent)){
+            return null;
+        }
         chapterDetailContent=chapterDetailContent.replaceAll("<br>","");
         chapterDetailContent=chapterDetailContent.replaceAll("\\n","");
         List<Map> result=new LinkedList<>();

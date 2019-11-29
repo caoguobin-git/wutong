@@ -87,6 +87,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
     public UserEntity findByUsername(String username) {
         UserEntity userEntity=userMapper.findByUsername(username);
         return userEntity;

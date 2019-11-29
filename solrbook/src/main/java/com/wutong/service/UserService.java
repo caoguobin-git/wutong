@@ -20,4 +20,6 @@ public interface UserService {
     UserEntity findUserById(String usertoken);
 
     String updateUserById(String userid, boolean b);
+
+    UserEntity findByUsername(String username);
 }

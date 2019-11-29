@@ -24,27 +24,28 @@ import java.util.Map;
 public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String usertoken = request.getParameter("usertoken");
-        if(UserController.loginUsers.get(usertoken)!=null){
-            return true;
-        }
-
-
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json; charset=utf-8");
-        PrintWriter out = null ;
-        out=response.getWriter();
-        Map<String,String> map = new HashMap<>();
-        map.put("data", null);
-        map.put("message", "未登录或登录已过期");
-        map.put("status", "403");
-        response.setStatus(403);
-        String s = new ObjectMapper().writeValueAsString(map);
-        out.println(s);
-        out.flush();
-        out.close();
-
-        return false;
+//        String usertoken = request.getParameter("usertoken");
+//        if(UserController.loginUsers.get(usertoken)!=null){
+//            return true;
+//        }
+//
+//
+//        response.setCharacterEncoding("UTF-8");
+//        response.setContentType("application/json; charset=utf-8");
+//        PrintWriter out = null ;
+//        out=response.getWriter();
+//        Map<String,String> map = new HashMap<>();
+//        map.put("data", null);
+//        map.put("message", "未登录或登录已过期");
+//        map.put("status", "403");
+//        response.setStatus(403);
+//        String s = new ObjectMapper().writeValueAsString(map);
+//        out.println(s);
+//        out.flush();
+//        out.close();
+//
+//        return false;
+        return true;
     }
 
     @Override

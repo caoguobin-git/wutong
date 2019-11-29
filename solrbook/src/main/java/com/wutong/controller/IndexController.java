@@ -45,4 +45,9 @@ public class IndexController {
     public String adminIndex(){
         return "adminPage";
     }
+
+    @RequestMapping(value = "/adminLoginPage")
+    public String adminLoginPage(){
+        return "admin-login";
+    }
 }
