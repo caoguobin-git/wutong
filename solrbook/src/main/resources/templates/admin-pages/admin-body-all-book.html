@@ -1,3 +1,94 @@
-<div class="row" id="admin-page-users">
-    文档
+<div class="row"
+     id="admin-page-all-book">
+    <div class="col-lg-10 col-lg-offset-1">
+        <div class="row">
+            <div class="input-group">
+                <span class="input-group-addon">大类：</span>
+                <select class="form-control"
+                        @change="getBooksByCourseId()"
+                        v-model="currentCourseIndex">
+                    <option v-for="course,index in courses"
+                            :value="index">
+                        {{course.courseName}}
+                    </option>
+                </select>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">文档：</span>
+                <select
+                        class="form-control"
+                        v-model="currentBookAddr">
+                    <option disabled="disabled">
+                        --请选择文档--
+                    </option>
+                    <option v-for="book,index in books"
+                            :value="book.bookAddr">
+                        {{book.bookName}}
+                    </option>
+                </select>
+            </div>
+            <!--            <div class="input-group">-->
+            <!--                <span class="input-group-addon">文档地址：</span>-->
+            <!--                <p class="form-control">-->
+            <!--                    {{books[currentBookIndex].bookAddr}}</p>-->
+            <!--            </div>-->
+        </div>
+        <iframe style="height: 900px;width: 90%" :src="displayBookAddr" width='100%' height='100%' frameborder='1'></iframe>
+
+    </div>
 </div>
+
+<script>
+    var allBook = new Vue({
+        el: '#admin-page-all-book',
+        data: {
+            courses: [],
+            currentCourseIndex: '',
+            books:[],
+            currentBookAddr:'',
+        },
+        computed:{
+            displayBookAddr:function () {
+                return 'https://view.officeapps.live.com/op/view.aspx?src='+this.currentBookAddr;
+            }
+        },
+        methods: {
+            getBooksByCourseId: function () {
+                var courseId = this.courses[this.currentCourseIndex].courseId;
+
+                var url = '/book/getBooksByCourseId';
+                var param = {
+                    courseId: courseId,
+                }
+                $.ajax({
+                    url: url,
+                    data: param,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        allBook.books.splice(0, allBook.books.length);
+                        for (var i = 0; i < result.data.length; i++) {
+                            allBook.books.push(result.data[i])
+                        }
+                    }
+                })
+            },
+            getAllCourses: function () {
+                $.ajax({
+                    url: '/book/getCourses',
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        console.log(result)
+                        for (var i = 0; i < result.data.length; i++) {
+                            allBook.courses.push(result.data[i])
+                        }
+                    }
+                })
+            }
+        },
+        mounted: function () {
+            this.getAllCourses();
+        }
+    })
+</script>
