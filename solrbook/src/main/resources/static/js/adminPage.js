@@ -62,24 +62,6 @@ var admin = new Vue({
         ]
     },
     methods: {
-        adminLogout: function () {
-            var url = '/admin/logout';
-            $.ajax({
-                url: url,
-                type: 'get',
-                dataType:'json',
-                success: function (result) {
-                    console.log(result);
-                    window.location.href = "/adminLoginPage"
-                },
-                complete:function (a,b) {
-                    console.log(a)
-                    console.log(b)
-                    window.location.href = "/adminLoginPage"
-                }
-            })
-        },
-
         loadPage: function (val) {
             console.log(val);
             $('#main-content').load('/admin/adminPages/' + val, function () {

@@ -7,12 +7,18 @@
 
 package com.wutong.filter;
 
+import com.wutong.realm.UserRealm;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.LogoutFilter;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+@Slf4j
 public class CustomLogoutFilter extends LogoutFilter {
 
 
@@ -21,37 +27,22 @@ public class CustomLogoutFilter extends LogoutFilter {
 
     @Override
     protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
-//        System.out.println("开始过滤...");
-//        // 清空相关缓存
-        Subject subject = getSubject(request, response);
+        //登出操作 清除缓存  subject.logout() 可以自动清理缓存信息, 这些代码是可以省略的  这里只是做个笔记 表示这种方式也可以清除
+        Subject subject = getSubject(request,response);
+//        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) SecurityUtils.getSecurityManager();
+//        UserRealm shiroRealm = (UserRealm) securityManager.getRealms().iterator().next();
+//        PrincipalCollection principals = subject.getPrincipals();
+//        shiroRealm.clearCache(principals);
+
+        //登出
         subject.logout();
-//        if(subject != null && subject.getPrincipal() != null) {
-//            Session session = subject.getSession();
-//            LoginBean loginBean = (LoginBean) subject.getPrincipal();
-//            String staffNo = loginBean.getStaffNo();
-//            Serializable sessionId = session.getId();
-//            Deque<Serializable> deque = cache.get(staffNo);
-//            if(deque != null && deque.contains(sessionId)) {
-//                //清除为了校验单一登录留下的缓存
-//                deque.remove(sessionId);
-//                if(deque.size() == 0) {
-//                    cache.remove(staffNo);
-//                } else {
-//                    cache.put(staffNo, deque);
-//                }
-//                session.setAttribute(checkOutFlag, null);
-//            }
-//        }
-//        String redirectUrl = getRedirectUrl(request, response, subject);
-//        try {
-//            subject.logout();
-//        } catch (SessionException ise) {
-//            ise.printStackTrace();
-//        }
-        System.out.println("退出登录");
-        issueRedirect(request, response, "/adminLoginPage");
-//        return false;
-        return  false;
+
+        //获取登出后重定向到的地址
+        String redirectUrl = getRedirectUrl(request,response,subject);
+        //重定向
+        log.info(redirectUrl);
+        issueRedirect(request,response,redirectUrl);
+        return false;
     }
 
 }

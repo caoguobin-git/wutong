@@ -21,6 +21,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.Filter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,6 +33,16 @@ public class ShiroConfig {
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
+        //未授权跳转
+        shiroFilterFactoryBean.setUnauthorizedUrl("/page/fail.html");
+        //登录成功跳转的链接
+        shiroFilterFactoryBean.setSuccessUrl("/adminIndex");
+        shiroFilterFactoryBean.setLoginUrl("/adminLoginPage");
+        Map<String, Filter> filterMap=new HashMap<>();
+        //配置自定义登出 覆盖 logout 之前默认的LogoutFilter
+        filterMap.put("logout", getCustonLogoutFilter());
+        shiroFilterFactoryBean.setFilters(filterMap);
+
         //拦截器.
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         //配置退出过滤器,其中的具体的退出代码Shiro已经替我们实现了
@@ -57,11 +69,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/user/register", "authc");
         filterChainDefinitionMap.put("/user/updateUserById", "authc");
         filterChainDefinitionMap.put("/**", "anon");
-        //未授权跳转
-        shiroFilterFactoryBean.setUnauthorizedUrl("/page/fail.html");
-        //登录成功跳转的链接
-        shiroFilterFactoryBean.setSuccessUrl("/adminIndex");
-        shiroFilterFactoryBean.setLoginUrl("/adminLoginPage");
+
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
@@ -117,7 +125,9 @@ public class ShiroConfig {
 
     @Bean
     public CustomLogoutFilter getCustonLogoutFilter() {
-        return new CustomLogoutFilter();
+        CustomLogoutFilter logoutFilter= new CustomLogoutFilter();
+        logoutFilter.setRedirectUrl("/adminLoginPage");
+        return logoutFilter;
     }
 
 

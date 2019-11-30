@@ -46,6 +46,11 @@ public class IndexController {
         return "adminPage";
     }
 
+    @RequestMapping(value = "/")
+    public String redirect2LoginPage(){
+        return "admin-login";
+    }
+
     @RequestMapping(value = "/adminLoginPage")
     public String adminLoginPage(){
         return "admin-login";
