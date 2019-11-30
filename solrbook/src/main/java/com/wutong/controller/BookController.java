@@ -162,7 +162,6 @@ public class BookController {
                 trim = trim.replaceAll(trim1, "");
             }
         }
-        log.info(trim);
 
         if (trim != null && trim.length() > 0) {
             String[] s = trim.split(" ");
@@ -172,9 +171,9 @@ public class BookController {
                 }
             }
         }
-        log.info(course);
+        String s = trim.replaceAll(" ", "");
 
-        Map<String, Object> results = bookService.searchKeyWords(trim, course, pageSize, currentPage,select);
+        Map<String, Object> results = bookService.searchKeyWords(s, course, pageSize, currentPage,select);
         return new JsonResult(results);
     }
 
