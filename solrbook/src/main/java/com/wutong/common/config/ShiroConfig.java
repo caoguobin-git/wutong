@@ -1,13 +1,4 @@
-/***********************************************
- * File Name: ShiroConfig
- * Author: caoguobin
- * mail: caoguobin@live.com
- * Created Time: 12 08 2019 下午 3:44
- ***********************************************/
-
 package com.wutong.common.config;
-
-
 
 import com.wutong.filter.CustomLogoutFilter;
 import com.wutong.filter.RememberMeFilter;
@@ -50,8 +41,7 @@ public class ShiroConfig {
 //        filterChainDefinitionMap.put("/user/logout", "logout");
         filterChainDefinitionMap.put("/user/login", "anon");
         filterChainDefinitionMap.put("/userLoginPage", "anon");
-        filterChainDefinitionMap.put("/user/register", "anon");
-        // authc:所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问
+        // "authc":所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问
         filterChainDefinitionMap.put("/adminIndex", "authc");
         filterChainDefinitionMap.put("/admin/login", "anon");
         filterChainDefinitionMap.put("/test/**", "anon");
@@ -77,8 +67,7 @@ public class ShiroConfig {
     /**
      * 凭证匹配器
      * 由于我们的密码校验交给Shiro的SimpleAuthenticationInfo进行处理了
-     *
-     * @return
+     * @return 密码凭证匹配器
      */
     @Bean
     public HashedCredentialsMatcher hashedCredentialsMatcher() {
