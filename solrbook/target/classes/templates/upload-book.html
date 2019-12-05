@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        上传文件</title>
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
+</head>
+<body>
+<div id="upload-book">
+    <input type="file" id="current-pic" @change="getPicUrl()">
+    <hr>
+    <textarea v-model="currentText"></textarea>
+    <p><span>图片地址：</span><input type="text" :value="currentPicUrl"></p>
+    <img style="width: 80px;" alt="请先上传文件" :src="currentPicUrl">
+</div>
+</body>
+</html>
+
+<script>
+    var uploadBook=new Vue({
+        el:'#upload-book',
+        data:{
+            picUrlRoot:'http://image.fxyilan.com/',
+            currentPic:{},
+            currentPicUrlPost:'',
+            currentText:''
+        },
+        computed:{
+            currentPicUrl:function () {
+                return this.picUrlRoot+this.currentPicUrlPost;
+            }
+        },
+        methods:{
+            getPicUrl:function () {
+                this.currentPic= document.getElementById('current-pic').files[0];
+                var url="/book/savePic";
+                var params=new FormData();
+                params.append('usertoken','1D2B42EAF3FF292A71C417F1C97A5JDJ');
+                params.append('pic',document.getElementById('current-pic').files[0]);
+                // let params={
+                //     usertoken:'1D2B42EAF3FF292A71C417F1C97A5JDJ',
+                //     pic:document.getElementById('current-pic').files[0]
+                // }
+
+                $.ajax({
+                    url:url,
+                    data:params,
+                    type:'post',
+                    processData:false,
+                    contentType:false,
+                    dataType:'json',
+                    async: false,
+                    success:function (result) {
+                        uploadBook.currentPicUrlPost=result.data;
+                        uploadBook.currentText=uploadBook.currentText+'\n<img src="'+uploadBook.currentPicUrl+'">'
+                        console.log(result);
+                    }
+                })
+            }
+        },
+        mounted:function () {
+            console.log('load OK');
+        }
+    })
+</script>

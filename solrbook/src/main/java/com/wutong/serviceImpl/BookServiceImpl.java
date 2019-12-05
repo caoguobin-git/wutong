@@ -28,10 +28,6 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,20 +41,14 @@ import java.util.*;
 public class BookServiceImpl implements BookService {
 
 
-    //    static final String ROOT_PATH = "e:/";
     static final String ROOT_PATH = "/usr/local/books/";
-    //    static final String CHILD_PATH = "wutongpics";
     static final String CHILD_PATH = "pics";
 
     @Autowired
     private BookMapper bookMapper;
 
-    final static String solrUrl = "http://118.190.156.52:8983/solr/book";
-
-    final static HttpSolrClient solrServer = new HttpSolrClient.Builder(solrUrl)
-            .withConnectionTimeout(10000)
-            .withSocketTimeout(60000)
-            .build();
+    @Autowired
+    private HttpSolrClient solrClient;
 
     @Override
     public List<BookEntity> getBook(int bookId) {
@@ -77,7 +67,7 @@ public class BookServiceImpl implements BookService {
         query.set("spellcheck.count", "10");
         QueryResponse rsp = null;
         try {
-            rsp = solrServer.query(query);
+            rsp = solrClient.query(query);
         } catch (SolrServerException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -112,15 +102,6 @@ public class BookServiceImpl implements BookService {
         }
         String[] s = keywords.split(" ");
         queryStr.append(String.join(" AND ", s));
-
-
-        //添加按类别搜索
-//        if (!(course == null || "".equalsIgnoreCase(course.trim()))) {
-//            if (course.trim().equalsIgnoreCase("admin")) {
-//                course = "检测";
-//            }
-//            queryStr.append(" AND ").append(course);
-//        }
 
         if (!Strings.isNullOrEmpty(select)) {
             queryStr.append(" AND courseshort:").append(select);
@@ -164,7 +145,7 @@ public class BookServiceImpl implements BookService {
         // 调用server的查询方法，查询索引库
         QueryResponse response = null;
         try {
-            response = solrServer.query(query);
+            response = solrClient.query(query);
         } catch (SolrServerException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -178,14 +159,6 @@ public class BookServiceImpl implements BookService {
 
 
         Map<String, Map<String, List<String>>> highlightingMap = response.getHighlighting();
-//        highlightingMap.forEach((k, v) -> {
-//            System.out.println(k);
-//            v.forEach((a, b) -> {
-//                System.out.println(a);
-//                System.out.println(b.get(0));
-//            });
-//        });
-
 
         //去除course高亮
         String fieldName1 = "bookname";
@@ -218,16 +191,10 @@ public class BookServiceImpl implements BookService {
                         id3 = id3.replaceAll("<text class='highlight-detail'>" + course + "</text>", course);
                     }
 
-                    //将img标签中的高亮去除
-
-                    //System.out.println(id3);
-                    //System.out.println("结束===================================");
                     result.setField(fieldName3, id3);
                 }
             }
         }
-
-//        System.out.println(results);
 
         Map<String, Object> pageResult = new HashMap<>();
         for (int i = 0; i < results.size(); i++) {
@@ -297,8 +264,6 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public String saveChapterByBookId(Integer bookId, String chapterTitle) {
-//        StringBuilder sb=new StringBuilder();
-//        StringBuilder append = sb.append("<h1>").append(chapterTitle).append("</h1>");
         int result = bookMapper.saveChapterByBookId(bookId, chapterTitle);
         if (result > 0) {
             return "ok";
@@ -324,7 +289,6 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<String> getWordsFromString(String wordStr) {
         FieldAnalysisRequest request = new FieldAnalysisRequest();
-//        request.addFieldName("searchText");
         request.setFieldNames(Collections.singletonList("chapterdetailtitle"));
         request.setFieldValue(wordStr);
         request.setQuery(wordStr);
@@ -334,7 +298,7 @@ public class BookServiceImpl implements BookService {
 
         FieldAnalysisResponse response = null;
         try {
-            response = request.process(solrServer);
+            response = request.process(solrClient);
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>(resultSet);

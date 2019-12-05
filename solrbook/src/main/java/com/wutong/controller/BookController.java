@@ -24,6 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -119,20 +120,6 @@ public class BookController {
     @ResponseBody
     public JsonResult searchKeyWords(String usertoken, String keyWords, String course, Integer pageSize, Integer currentPage,String select) {
         log.info(keyWords);
-
-
-//        if (flag){
-//            HashMap<String, Object> stringObjectHashMap = new HashMap<>();
-//            stringObjectHashMap.put("wordAnalysis",bookService.getWordsFromString(keyWords));
-//            stringObjectHashMap.put("numFound", 0);
-//            stringObjectHashMap.put("start", 0);
-//            stringObjectHashMap.put("pageSize", 100);
-//            stringObjectHashMap.put("currentPage", 1);
-//            stringObjectHashMap.put("results", new LinkedList<>());
-//
-//            return new JsonResult(stringObjectHashMap);
-//        }
-
 
         if (!Strings.isNullOrEmpty(usertoken)) {
             UserEntity userEntity = userService.findUserById(usertoken);
@@ -294,23 +281,11 @@ public class BookController {
             }
         }
         Map<String, Object> result = new HashMap<>();
-//
-//        String chapterStr = sb.toString();
-//        if (!Strings.isNullOrEmpty(keyWords)) {
-//            String[] keywordArr = keyWords.split(",");
-//            for (int i = 0; i < keywordArr.length; i++) {
-//                chapterStr = chapterStr.replaceAll(keywordArr[i], "<text class='highlight-detail'>" + keywordArr[i] + "</text>");
-//            }
-//        }
-//
-        //去除转义
-//        chapterStr= StringEscapeUtils.unescapeJava(chapterStr);
-//        chapterStr=chapterStr.replaceAll("\\n","");
+
         result.put("courseName", book.get(0).getCourseName());
         result.put("bookName", book.get(0).getBookName());
         result.put("bookAddr", book.get(0).getBookAddr());
         result.put("chapters", chapterResult);
-//        return new JsonResult(result);
         return new JsonResult(result);
     }
 
@@ -326,17 +301,6 @@ public class BookController {
             chapterDetailContent.setChapterDetailContent(getChapterDetailContentNew(chapterDetail.getChapterDetailContent()));
             list.add(chapterDetailContent);
         }
-//        List<ChapterDetailContent> list=new LinkedList<>();
-//        for (ChapterDetailEntity chapterDetail : chapterDetails) {
-//            ChapterDetailContent chapterDetailContent=new ChapterDetailContent();
-//            System.out.println("detail::::"+chapterDetailContent);
-//            chapterDetailContent.setChapterDetailAddr(chapterDetail.getChapterDetailAddr());
-//            chapterDetailContent.setChapterId(chapterDetail.getChapterId());
-//            System.out.println("content"+chapterDetail.getChapterDetailContent());
-//            chapterDetailContent.setChapterDetailContent(getChapterDetailContentNew(chapterDetail.getChapterDetailContent()));
-//            chapterDetailContent.setChapterDetailId(chapterDetail.getChapterDetailId());
-//            chapterDetailContent.setChapterDetailTitle(chapterDetail.getChapterDetailTitle());
-//        }
         return list;
     }
 
@@ -401,5 +365,4 @@ public class BookController {
         List<String> result = bookService.getWordsFromString(wordStr);
         return  new JsonResult(result);
     }
-
 }

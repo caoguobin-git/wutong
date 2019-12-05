@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        Title</title>
+    <script type="text/javascript"
+            src="../js/vue.js"></script>
+    <script type="text/javascript"
+            src="../js/jquery-3.4.1.js"></script>
+</head>
+<body>
+<div id="content">
+    <button @click="getContent()">
+        获取目录
+    </button>
+    <div v-for="item in content">
+        <div>
+            <h1>{{item.courseName}}</h1>
+            <div v-for="book in item.books">
+                <h2>{{book.bookName}}</h2>
+                <div v-for="chapter in book.chapters">
+                    <h3>{{chapter.chapterTitle}}</h3>
+                    <div v-for="chapterDetail in chapter.chapterDetails">
+                        {{chapterDetail.chapterDetailTitle}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    var content = new Vue({
+        el: '#content',
+        data: {
+            content:[]
+        },
+        methods: {
+            getContent: function () {
+                var url = "/book/getContent";
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.status == '200') {
+                            content.content = result.data;
+                        }
+                        console.log(result)
+                    }
+                })
+            }
+        }
+    })
+</script>

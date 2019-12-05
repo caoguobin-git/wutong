@@ -1,0 +1,398 @@
+<div class="row"
+     id="admin-page-new-book">
+    <div class="col-lg-10 col-lg-offset-1"
+         style="color: black">
+
+
+        <div class="row"
+             id="new-book-vue">
+            <!--        添加章节模态框-->
+            <div class="modal fade"
+                 id="addChapter"
+                 style="z-index:9999999"
+                 tabindex="-1"
+                 role="dialog"
+                 aria-labelledby="myModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button"
+                                    class="close"
+                                    data-dismiss="modal"
+                                    aria-hidden="true">
+                                &times;
+                            </button>
+                            <h4 class="modal-title"
+                                id="myModalLabel">
+                                添加章节
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="input-group">
+                                <span class="input-group-addon">当前大类：</span>
+                                <input disabled="disabled"
+                                       type="text"
+                                       :value="courses[currentCourseIndex].courseName"
+                                       class="form-control">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">当前文档：</span>
+                                <input disabled="disabled"
+                                       type="text"
+                                       :value="books[currentBookIndex].bookName"
+                                       class="form-control">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">章节标题：</span>
+                                <input v-model="newChapterTitle"
+                                       type="text"
+                                       class="form-control">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button"
+                                    class="btn btn-default"
+                                    data-dismiss="modal">
+                                关闭
+                            </button>
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    data-dismiss="modal"
+                                    @click="saveChapterByBookId()">
+                                提交更改
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal -->
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">大类：</span>
+                <select class="form-control"
+                        @change="getBooksByCourseId()"
+                        v-model="currentCourseIndex">
+                    <option v-for="course,index in courses"
+                            :value="index">
+                        {{course.courseName}}
+                    </option>
+                </select>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">文档：</span>
+                <select @change="getChaptersByBookId()"
+                        class="form-control"
+                        v-model="currentBookIndex">
+                    <option disabled="disabled">
+                        --请选择文档--
+                    </option>
+                    <option v-for="book,index in books"
+                            :value="index">
+                        {{book.bookName}}
+                    </option>
+                </select>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">文档地址：</span>
+                <p class="form-control">
+                    {{books[currentBookIndex].bookAddr}}</p>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">章节：</span>
+                <select @change="getChapterdetailsByChapterId()"
+                        class="form-control"
+                        v-model="currentChapterIndex">
+                    <option disabled="disabled">
+                        --请选择章节--
+                    </option>
+                    <option v-for="chapter,index in chapters"
+                            :value="index">
+                        {{chapter.chapterTitle}}
+                    </option>
+                </select>
+                <span class="btn btn-sm btn-info input-group-addon"
+                      data-toggle="modal"
+                      data-target="#addChapter">添加</span>
+            </div>
+
+            <div class="input-group">
+                <span class="input-group-addon">已有二级目录：</span>
+                <p class="form-control">
+                    <span v-for="chapterDetail in chapterDetails">{{chapterDetail.chapterDetailTitle}}; </span>
+                </p>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">新目录：</span>
+                <input type="text"
+                       placeholder="请在下方添加内容"
+                       v-model="newChapterDetailTitle"
+                       class="form-control">
+                <span class="btn btn-sm btn-info input-group-addon"
+                      @click="saveChapterDetailByChapterId()">添加</span>
+            </div>
+            <div class="btn-group">
+                <button @click="toTitle()"
+                        type="button"
+                        class="btn btn-default">
+                    标题
+                </button>
+                <button @click="toP()"
+                        type="button"
+                        class="btn btn-default">
+                    段落
+                </button>
+                <button @click="toList()"
+                        type="button"
+                        class="btn btn-default">
+                    列表
+                </button>
+                <button @click="inputPic()"
+                        type="button"
+                        class="btn btn-default">
+                    图片
+                </button>
+                <input @change="uploadPic($event)"
+                       id="pic-upload-input"
+                       style="display: none"
+                       type="file">
+
+            </div>
+            <textarea
+                    class="form-control"
+                    v-model="inputText"
+                    style="resize: none;width: 100%;height: 500px"></textarea>
+            <span v-html="htmlText"></span>
+        </div>
+        <div class="row"
+             style="color: black"
+             id="editor"></div>
+        <button onclick="preview()">
+            预览
+        </button>
+    </div>
+</div>
+
+<script>
+    function preview() {
+        console.log(editor.$textElem.html());
+    }
+
+    var newBook = new Vue({
+        el: '#new-book-vue',
+        data: {
+            usertoken: '1D2B42EAF3FF292A71C417F1C97A5JDJ',
+            message: 'hello',
+            currentCourseIndex: 0,
+            courses: [],
+            currentBookIndex: 0,
+            books: [],
+            currentChapterIndex: 0,
+            chapters: [],
+            currentChapterDetailIndex: '',
+            chapterDetails: [],
+            newChapterTitle: '',
+            newChapterDetailTitle: '',
+            inputText: '',
+            htmlText: ''
+        },
+        methods: {
+            uploadPic: function (event) {
+                var url = "/book/savePic";
+
+                var params = new FormData();
+                params.append('usertoken', newBook.usertoken);
+                params.append('picFile', event.target.files[0]);
+                console.log(params)
+                $.ajax({
+                    url: url,
+                    data: params,
+                    type: 'post',
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    async: false,
+                    success: function (result) {
+                        console.log(result)
+                        newBook.htmlText += '<img class="wutong-pic" src="https://doc.tjrckj.net/' + result.data + '"></img>'
+                    }
+                })
+            },
+            inputPic: function () {
+                document.getElementById('pic-upload-input').click()
+            },
+            toTitle: function () {
+                var text = window.getSelection().toString();
+                console.log(text);
+                this.htmlText += '<p class="wutong-title1">' + text + '</p>'
+            },
+            toP: function () {
+                var text = window.getSelection().toString();
+                var texts = text.split('\n');
+                for (var i = 0; i < texts.length; i++) {
+                    this.htmlText += '<p class="wutong-paragraph">' + text + '</p>'
+                }
+
+            },
+            toList: function () {
+                var text = window.getSelection().toString();
+                var texts = text.split('\n');
+                var result = '<ul class="wutong-list">';
+                console.log(text);
+                for (var i = 0; i < texts.length; i++) {
+                    if (!(texts[i] == '\n' || texts[i] == null || texts[i] == '')) {
+                        result += '<li>' + texts[i] + '</li>';
+                    }
+                }
+                result += '</ul>';
+                this.htmlText += result;
+            },
+            saveChapterDetailByChapterId: function () {
+                var chapterId = this.chapters[this.currentChapterIndex].chapterId;
+                console.log(chapterId);
+                var chapterDetailTitle = this.newChapterDetailTitle;
+                console.log(chapterDetailTitle)
+                // var content = editor.$textElem.html();
+                var content = this.htmlText;
+                console.log(content);
+
+                var url = '/book/saveChapterDetailByChapterId';
+                var param = {
+                    chapterId: chapterId,
+                    chapterDetailTitle: chapterDetailTitle,
+                    chapterDetailContent: content,
+                    usertoken: this.usertoken
+                }
+
+                $.ajax({
+                    url: url,
+                    data: param,
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (result) {
+                        console.log(result)
+                        newBook.getChaptersByBookId();
+                        newBook.newChapterDetailTitle = '';
+                        newBook.htmlText = '';
+                        newBook.inputText = '';
+                    }
+                })
+            }
+            ,
+            saveChapterByBookId: function () {
+                var url = "/book/saveChapterByBookId";
+                var param = {
+                    bookId: this.books[this.currentBookIndex].bookId,
+                    chapterTitle: this.newChapterTitle,
+                    usertoken: this.usertoken
+                }
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: param,
+                    dataType: 'json',
+                    success: function (result) {
+                        console.log(result);
+                        alert(result.data)
+                        newBook.newChapterTitle = '';
+                        newBook.getChaptersByBookId();
+                    }
+                })
+            }
+            ,
+            setChapterDetails: function () {
+                console.log("设置内容")
+            }
+            ,
+            getCourses: function () {
+                var url = '/book/getCourses';
+                var param = {
+                    usertoken: this.usertoken
+                }
+                $.ajax({
+                    url: url,
+                    data: param,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        //清空
+                        newBook.courses.splice(0, newBook.courses.length);
+                        for (var i = 0; i < result.data.length; i++) {
+                            newBook.courses.push(result.data[i])
+                        }
+                        newBook.getBooksByCourseId();
+                    }
+                })
+            }
+            ,
+            getBooksByCourseId: function () {
+                console.log(this.courses[this.currentCourseIndex].courseId)
+                var url = '/book/getBooksByCourseId';
+                var param = {
+                    courseId: this.courses[this.currentCourseIndex].courseId,
+                    usertoken: this.usertoken
+                }
+                $.ajax({
+                    url: url,
+                    data: param,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        newBook.books.splice(0, newBook.books.length);
+                        for (var i = 0; i < result.data.length; i++) {
+                            newBook.books.push(result.data[i])
+                        }
+                        newBook.getChaptersByBookId();
+                    }
+                })
+            }
+            ,
+            getChaptersByBookId: function () {
+
+                var url = '/book/getChaptersByBookId';
+                var param = {
+                    bookId: this.books[this.currentBookIndex].bookId,
+                    usertoken: this.usertoken
+                }
+                $.ajax({
+                    url: url,
+                    data: param,
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (result) {
+                        newBook.chapters.splice(0, newBook.chapters.length);
+                        for (var i = 0; i < result.data.length; i++) {
+                            newBook.chapters.push(result.data[i])
+                        }
+                        newBook.getChapterdetailsByChapterId();
+                    }
+                })
+            }
+            ,
+
+            getChapterdetailsByChapterId: function () {
+
+                var url = '/book/getChapterdetailsByChapterId';
+                var param = {
+                    chapterId: this.chapters[this.currentChapterIndex].chapterId,
+                    usertoken: this.usertoken
+                }
+                $.ajax({
+                    url: url,
+                    data: param,
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (result) {
+                        newBook.chapterDetails.splice(0, newBook.chapterDetails.length);
+                        for (var i = 0; i < result.data.length; i++) {
+                            newBook.chapterDetails.push(result.data[i])
+                        }
+                    }
+                })
+            }
+        },
+        mounted: function () {
+            this.getCourses();
+        }
+    })
+</script>
