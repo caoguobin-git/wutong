@@ -20,7 +20,7 @@ spring:
     url: jdbc:mysql://39.106.33.181:3306/crawl?characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
     username: root
     password: mysql!(*()!@*
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     platform: mysql
     # 下面为连接池的补充设置，应用到上面所有数据源中
     type: com.alibaba.druid.pool.DruidDataSource
