@@ -30,14 +30,12 @@ public class AdminController {
 
     @RequestMapping(value = "/adminPages/{path}")
     public String adminPages(@PathVariable("path")String path){
-        System.out.println("admin-pages/"+path);
         return "admin-pages/"+path;
     }
     @PostMapping(value = "/login")
     @ResponseBody
     public JsonResult userLogin(@RequestParam("username")String username, @RequestParam("password")String password){
 
-        log.info(username+password);
         Subject subject = SecurityUtils.getSubject();
         //封装用户数据
         UsernamePasswordToken userToken = new UsernamePasswordToken(username, password);

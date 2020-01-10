@@ -55,7 +55,6 @@ public class BookController {
     @RequestMapping(value = "/getBookByBookId")
     @ResponseBody
     public JsonResult getBookByBookId(Integer bookId, String keyWords) {
-        log.info(keyWords);
         List<BookEntity> book = getBook(bookId);
         if (book.size() == 0) {
             return new JsonResult("404", "未找到当前文档", null);
@@ -75,7 +74,6 @@ public class BookController {
                         .append(StringEscapeUtils.unescapeJava(chapterDetail.getChapterDetailContent()));
             }
         }
-        System.out.println(sb.toString());
         Map<String, String> result = new HashMap<>();
 
         String chapterStr = sb.toString();
@@ -87,8 +85,8 @@ public class BookController {
         }
 
         //去除转义
-        chapterStr= StringEscapeUtils.unescapeJava(chapterStr);
-        chapterStr=chapterStr.replaceAll("\\n","");
+        chapterStr = StringEscapeUtils.unescapeJava(chapterStr);
+        chapterStr = chapterStr.replaceAll("\\n", "");
         result.put("courseName", book.get(0).getCourseName());
         result.put("bookName", book.get(0).getBookName());
         result.put("bookAddr", book.get(0).getBookAddr());
@@ -103,23 +101,19 @@ public class BookController {
 
     @RequestMapping(value = "/toBook/{bookname}")
     public String toBook(@PathVariable("bookname") String bookName) {
-        System.out.println(bookName);
         return "pages/" + bookName;
     }
 
     @RequestMapping(value = "/getSuggest")
     @ResponseBody
-    public JsonResult getSuggest(String keyWord){
-        log.info(keyWord);
+    public JsonResult getSuggest(String keyWord) {
         List<String> result = bookService.getSuggest(keyWord);
-        log.info(result.toString());
         return new JsonResult(result);
     }
 
     @RequestMapping("/searchKeyWords")
     @ResponseBody
-    public JsonResult searchKeyWords(String usertoken, String keyWords, String course, Integer pageSize, Integer currentPage,String select) {
-        log.info(keyWords);
+    public JsonResult searchKeyWords(String usertoken, String keyWords, String course, Integer pageSize, Integer currentPage, String select) {
 
         if (!Strings.isNullOrEmpty(usertoken)) {
             UserEntity userEntity = userService.findUserById(usertoken);
@@ -140,11 +134,11 @@ public class BookController {
             trim = keyWords.trim();
         }
 
-        Pattern pattern=Pattern.compile("\\w*");
-        String test=keyWords.replaceAll(" ", "");
+        Pattern pattern = Pattern.compile("\\w*");
+        String test = keyWords.replaceAll(" ", "");
         Matcher matcher = pattern.matcher(test);
-        while (matcher.find()){
-            if (matcher.group().length()>0){
+        while (matcher.find()) {
+            if (matcher.group().length() > 0) {
                 String trim1 = matcher.group(0).trim();
                 trim = trim.replaceAll(trim1, "");
             }
@@ -160,7 +154,7 @@ public class BookController {
         }
         String s = trim.replaceAll(" ", "");
 
-        Map<String, Object> results = bookService.searchKeyWords(s, course, pageSize, currentPage,select);
+        Map<String, Object> results = bookService.searchKeyWords(s, course, pageSize, currentPage, select);
         return new JsonResult(results);
     }
 
@@ -234,25 +228,23 @@ public class BookController {
         return null;
     }
 
-    @RequestMapping(value = "/saveChapterByBookId",method = RequestMethod.POST)
+    @RequestMapping(value = "/saveChapterByBookId", method = RequestMethod.POST)
     @ResponseBody
-    public JsonResult saveChapterByBookId(String chapterTitle,Integer bookId){
-        String resutl = bookService.saveChapterByBookId(bookId,chapterTitle);
+    public JsonResult saveChapterByBookId(String chapterTitle, Integer bookId) {
+        String resutl = bookService.saveChapterByBookId(bookId, chapterTitle);
         return new JsonResult(resutl);
     }
 
-    @RequestMapping(value = "saveChapterDetailByChapterId",method = RequestMethod.POST)
+    @RequestMapping(value = "saveChapterDetailByChapterId", method = RequestMethod.POST)
     @ResponseBody
-    public JsonResult saveChapterDetailByChapterId(Integer chapterId,String chapterDetailTitle,String chapterDetailContent){
-        String result = bookService.saveChapterDetailByChapterId(chapterId,chapterDetailTitle,chapterDetailContent);
+    public JsonResult saveChapterDetailByChapterId(Integer chapterId, String chapterDetailTitle, String chapterDetailContent) {
+        String result = bookService.saveChapterDetailByChapterId(chapterId, chapterDetailTitle, chapterDetailContent);
         return new JsonResult(result);
     }
 
     @RequestMapping(value = "/savePic", method = RequestMethod.POST)
     @ResponseBody
     public JsonResult savePic(String usertoken, MultipartFile picFile) {
-        log.info(usertoken);
-        log.info(picFile.getOriginalFilename());
         String picUrl = bookService.savePic(picFile);
         return new JsonResult(picUrl);
     }
@@ -260,7 +252,6 @@ public class BookController {
     @RequestMapping(value = "/getBookById")
     @ResponseBody
     public JsonResult getBookById(Integer bookId, String keyWords) {
-        log.info("getBookById");
         List<BookEntity> book = getBook(bookId);
         if (book.size() == 0) {
             return new JsonResult("404", "未找到当前文档", null);
@@ -268,7 +259,7 @@ public class BookController {
         List<ChapterEntity> chapters = book.get(0).getChapters();
         List<ChapterEntityNew> chapterResult = new LinkedList<>();
         for (ChapterEntity chapter : chapters) {
-            ChapterEntityNew chapterEntityNew=new ChapterEntityNew();
+            ChapterEntityNew chapterEntityNew = new ChapterEntityNew();
             chapterEntityNew.setBookId(chapter.getBookId());
             chapterEntityNew.setChapterContent(chapter.getChapterContent());
             chapterEntityNew.setChapterId(chapter.getChapterId());
@@ -290,10 +281,10 @@ public class BookController {
     }
 
     private List<ChapterDetailContent> setChapterDetails(List<ChapterDetailEntity> chapterDetails) {
-        List<ChapterDetailContent> list=new LinkedList<>();
+        List<ChapterDetailContent> list = new LinkedList<>();
 
         for (ChapterDetailEntity chapterDetail : chapterDetails) {
-            ChapterDetailContent chapterDetailContent=new ChapterDetailContent();
+            ChapterDetailContent chapterDetailContent = new ChapterDetailContent();
             chapterDetailContent.setChapterDetailTitle(chapterDetail.getChapterDetailTitle());
             chapterDetailContent.setChapterDetailId(chapterDetail.getChapterDetailId());
             chapterDetailContent.setChapterId(chapterDetail.getChapterId());
@@ -305,22 +296,19 @@ public class BookController {
     }
 
     private Object getChapterDetailContentNew(String chapterDetailContent) {
-//        System.out.println(chapterDetailContent);
-        if (Strings.isNullOrEmpty(chapterDetailContent)){
+        if (Strings.isNullOrEmpty(chapterDetailContent)) {
             return null;
         }
-        chapterDetailContent=chapterDetailContent.replaceAll("<br>","");
-        chapterDetailContent=chapterDetailContent.replaceAll("\\n","");
-        List<Map> result=new LinkedList<>();
+        chapterDetailContent = chapterDetailContent.replaceAll("<br>", "");
+        chapterDetailContent = chapterDetailContent.replaceAll("\\n", "");
+        List<Map> result = new LinkedList<>();
         Document doc = Jsoup.parse(chapterDetailContent);
-//        System.out.println(doc.toString());
         Elements allElements = doc.getElementsByTag("div");
         for (Element element : allElements) {
             Elements children = element.children();
             for (Element child : children) {
-                System.out.println(child.toString());
-                Map<String,Object> map=new HashMap<>();
-                switch (child.nodeName()){
+                Map<String, Object> map = new HashMap<>();
+                switch (child.nodeName()) {
                     case "p":
                         map.put("type", "p");
                         map.put("content", child.text());
@@ -331,18 +319,16 @@ public class BookController {
                         break;
                     case "ul":
                     case "ol":
-                        System.out.println("list");
                         map.put("type", "list");
-                        List<String> strings=new LinkedList<>();
-                        System.out.println("zheshige list----------------");
+                        List<String> strings = new LinkedList<>();
                         Elements li = child.select("li");
                         for (Element element1 : li) {
                             strings.add(element1.text());
                         }
-                        map.put("content",strings);
+                        map.put("content", strings);
 
                         break;
-                    case "h5":{
+                    case "h5": {
                         map.put("type", "title");
 
                         map.put("content", child.text());
@@ -361,8 +347,8 @@ public class BookController {
     //获取分词结果
     @GetMapping(value = "/getWordsFromString")
     @ResponseBody
-    public JsonResult getWordsFromString(String wordStr){
+    public JsonResult getWordsFromString(String wordStr) {
         List<String> result = bookService.getWordsFromString(wordStr);
-        return  new JsonResult(result);
+        return new JsonResult(result);
     }
 }

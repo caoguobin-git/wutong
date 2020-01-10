@@ -77,8 +77,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String updateUserById(String userid, boolean b) {
-        log.info(userid);
-        log.info(String.valueOf(b));
         int result = userMapper.updateUserById(userid,b);
         if (result>0){
             return "ok";

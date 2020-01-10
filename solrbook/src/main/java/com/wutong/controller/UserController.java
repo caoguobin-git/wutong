@@ -34,8 +34,6 @@ public class UserController {
     @RequestMapping(value = "/login")
     @ResponseBody
     public JsonResult userLogin(String username,String password){
-        log.info(username);
-        log.info(password);
         UserEntity userEntity= userService.userLogin(username,password);
         if (userEntity==null){
             return new JsonResult("403","账号或密码错误",null);

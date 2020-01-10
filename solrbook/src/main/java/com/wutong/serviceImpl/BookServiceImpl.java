@@ -84,11 +84,9 @@ public class BookServiceImpl implements BookService {
                     System.out.println(s);
                     wordList.add(s);
                 }
-                System.out.println(wordList);
             }
             //获取第一个推荐词
             String t = re.getFirstSuggestion(keyWord);
-            System.out.println("推荐词：" + t);
         }
         return wordList;
     }
@@ -112,13 +110,10 @@ public class BookServiceImpl implements BookService {
         params.set("q.op", "AND");
         query.add(params);
 
-        System.out.println("查询条件：" + queryStr.toString());
         query.set("df", "searchText");
-//        query.set("defType","dismax");
         query.set("q", queryStr.toString());
 
         //设置权重
-//        query.set("qf","courseshort^50 chapterdetailtitle^20 chapterdetailcontent^2");
         query.set("bf", "sum(div(chapterdetailtitle,0.01),if(exists(coursename),20000,0),div(chapterdetailcontent,0.1)");
 
 
@@ -153,7 +148,6 @@ public class BookServiceImpl implements BookService {
         }
         // 查询结果
         SolrDocumentList results = response.getResults();
-        log.info(String.valueOf(results.size()));
         long numFound = results.getNumFound();
         long start = results.getStart();
 
