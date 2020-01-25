@@ -18,7 +18,7 @@ public class FilePathUtil {
         }
         String filePath=rootPath+"/"+year+"/"+month+"/"+date;
         File file=new File(filePath);
-        System.out.println(filePath);
+//        System.out.println(filePath);
         if (!file.exists()){
             file.mkdirs();
         }

@@ -24,7 +24,7 @@ public class UserRealm extends AuthorizingRealm {
     private UserService userService;
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        log.info("授权管理");
+//        log.info("授权管理");
         return null;
     }
 

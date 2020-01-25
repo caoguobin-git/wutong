@@ -17,8 +17,10 @@ spring:
     restart:
       enabled: true
   datasource:
+#需要修改数据库ip port 名称
     url: jdbc:mysql://39.106.33.181:3306/crawl?characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
     username: root
+#数据库密码
     password: mysql!(*()!@*
     driver-class-name: com.mysql.cj.jdbc.Driver
     platform: mysql
@@ -53,7 +55,13 @@ mybatis:
   mapper-locations: classpath:mappers/*.xml
 logging:
   level:
-    com.wutong.mapper.BookMapper: debug
-    com.wutong.mapper.UserMapper: debug
+#配置logging level
+    com.wutong.mapper.BookMapper: error
+    com.wutong.mapper.UserMapper: error
 solr:
+#solr 地址端口和密码
   host: http://admin:duochuangSolr@118.190.156.52:8983/solr/book
+pic-path:
+#图片保存路径
+  child-path: pics
+  root-path: /usr/local/books/

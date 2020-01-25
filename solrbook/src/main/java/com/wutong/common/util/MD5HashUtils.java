@@ -94,7 +94,7 @@ public class MD5HashUtils {
             stringBuffer.append(map.get(string));
         }
         stringBuffer.append(salt);
-        System.out.println(stringBuffer);
+//        System.out.println(stringBuffer);
         String sign = new Md5Hash(stringBuffer.toString()).toString();
         return sign;
     }
@@ -120,9 +120,9 @@ public class MD5HashUtils {
             stringBuffer.append(map.get(string));
         }
         stringBuffer.append(salt);
-        System.out.println(stringBuffer);
+//        System.out.println(stringBuffer);
         String sign = new Md5Hash(stringBuffer.toString()).toString();
-        System.out.println("sign===="+sign);
+//        System.out.println("sign===="+sign);
         if (map.get("sign").equalsIgnoreCase(sign)){
             return true;
         }

@@ -29,6 +29,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,8 +42,10 @@ import java.util.*;
 public class BookServiceImpl implements BookService {
 
 
-    static final String ROOT_PATH = "/usr/local/books/";
-    static final String CHILD_PATH = "pics";
+    @Value("${pic-path.root-path}")
+    private String ROOT_PATH;
+    @Value("${pic-path.child-path}")
+    private String CHILD_PATH;
 
     @Autowired
     private BookMapper bookMapper;
@@ -81,7 +84,7 @@ public class BookServiceImpl implements BookService {
             for (SpellCheckResponse.Suggestion suggestion : suggestions) {
                 List<String> list = suggestion.getAlternatives();
                 for (String s : list) {
-                    System.out.println(s);
+//                    System.out.println(s);
                     wordList.add(s);
                 }
             }
